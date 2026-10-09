@@ -1,46 +1,111 @@
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView, ScrollView, Platform } from "react-native";
 
-const METERS = {
-  "1-001234": { street: "Broadway & W 72nd St", borough: "Manhattan", type: "Muni Meter", rate: "$4.00/hr", safe: true, safeUntil: "6:00 PM", cleaning: "Thu 8:00-9:30 AM" },
-  "1-009871": { street: "W 72nd St & Amsterdam Ave", borough: "Manhattan", type: "Muni Meter", rate: "$3.00/hr", safe: false, restriction: "Street Cleaning 8-9:30 AM", risk: "CRITICAL - Trucks Active", cost: "$300-$500+" },
-  "2-004521": { street: "Flatbush Ave & Atlantic Ave", borough: "Brooklyn", type: "Single Space", rate: "$2.50/hr", safe: true, safeUntil: "7:00 PM", cleaning: "Mon/Thu 11:30 AM-1 PM" },
-  "2-008833": { street: "Bedford Ave & N 7th St", borough: "Brooklyn", type: "Muni Meter", rate: "$3.50/hr", safe: false, restriction: "No Standing 7-10 AM", risk: "HIGH - Active Zone", cost: "$115-$300+" },
-  "3-002201": { street: "Queens Blvd & 74th St", borough: "Queens", type: "Muni Meter", rate: "$3.00/hr", safe: true, safeUntil: "8:00 PM", cleaning: "Tue/Fri 9-10:30 AM" },
-  "3-007744": { street: "Jamaica Ave & 168th St", borough: "Queens", type: "Single Space", rate: "$1.50/hr", safe: false, restriction: "Tow Away Zone 7AM-7PM", risk: "CRITICAL - Active Tow Zone", cost: "$300-$500+" },
-};
+const NYC_API = "https://data.cityofnewyork.us/resource/mvib-nh9w.json";
+
+function parseHours(hoursStr) {
+  if (!hoursStr) return { safe: true, info: "No restrictions found" };
+  const now = new Date();
+  const day = now.getDay();
+  const hour = now.getHours();
+  const str = hoursStr.toUpperCase();
+  const isWeekday = day >= 1 && day <= 5;
+  const isSaturday = day === 6;
+  const isSunday = day === 0;
+  if (str.includes("MON-SAT")) {
+    if (isSunday) return { safe: true, info: "No restrictions on Sunday" };
+    const match = str.match(/(\d{4})-(\d{4})/);
+    if (match) {
+      const start = parseInt(match[1].slice(0,2));
+      const end = parseInt(match[2].slice(0,2));
+      if (hour >= start && hour < end) {
+        return { safe: false, info: `Restricted ${match[1]}–${match[2]} Mon–Sat` };
+      }
+      return { safe: true, info: `Safe now. Restrictions ${match[1]}–${match[2]} Mon–Sat` };
+    }
+  }
+  if (str.includes("MON-FRI")) {
+    if (!isWeekday) return { safe: true, info: "No restrictions on weekends" };
+    const match = str.match(/(\d{4})-(\d{4})/);
+    if (match) {
+      const start = parseInt(match[1].slice(0,2));
+      const end = parseInt(match[2].slice(0,2));
+      if (hour >= start && hour < end) {
+        return { safe: false, info: `Restricted ${match[1]}–${match[2]} Mon–Fri` };
+      }
+      return { safe: true, info: `Safe now. Restrictions ${match[1]}–${match[2]} Mon–Fri` };
+    }
+  }
+  return { safe: true, info: hoursStr };
+}
 
 export default function App() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [checked, setChecked] = useState("");
+  const [location, setLocation] = useState(null);
+  const [locLoading, setLocLoading] = useState(false);
+  const [nearbyMeters, setNearbyMeters] = useState([]);
 
-  const checkMeter = (id) => {
-    const val = (id || input).trim().toLowerCase();
+  const getLocation = async () => {
+    setLocLoading(true);
+    try {
+      if (Platform.OS === 'web') {
+        navigator.geolocation.getCurrentPosition(
+          async (pos) => {
+            const { latitude, longitude } = pos.coords;
+            setLocation({ latitude, longitude });
+            await fetchNearby(latitude, longitude);
+            setLocLoading(false);
+          },
+          (err) => {
+            setError("Location access denied. Type a meter number instead.");
+            setLocLoading(false);
+          }
+        );
+      }
+    } catch (e) {
+      setLocLoading(false);
+    }
+  };
+
+  const fetchNearby = async (lat, lng) => {
+    try {
+      const delta = 0.003;
+      const url = `${NYC_API}?$where=latitude>${lat-delta} AND latitude<${lat+delta} AND longitude>${lng-delta} AND longitude<${lng+delta}&$limit=10`;
+      const res = await fetch(url);
+      const data = await res.json();
+      setNearbyMeters(data);
+    } catch (e) {}
+  };
+
+  const checkMeter = async () => {
+    const val = input.trim();
     if (!val) return;
     setLoading(true);
     setError("");
     setResult(null);
-    setTimeout(() => {
-      const data = METERS[val];
-      if (data) {
-        setResult(data);
-        setChecked((id || input).trim().toUpperCase());
+    try {
+      const url = `${NYC_API}?meter_number=${encodeURIComponent(val)}&$limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const meter = data[0];
+        const parsed = parseHours(meter.meter_hours);
+        setResult({ ...meter, ...parsed });
       } else {
-        setError("Meter not found. Try: 1-001234 or 1-009871");
+        setError("Meter not found. Check the number on the post and try again.");
       }
-      setLoading(false);
-    }, 1000);
+    } catch (e) {
+      setError("Connection error. Please try again.");
+    }
+    setLoading(false);
   };
 
-  const reset = () => {
-    setResult(null);
-    setInput("");
-    setError("");
-    setChecked("");
-  };
+  const reset = () => { setResult(null); setInput(""); setError(""); };
+
+  useEffect(() => { getLocation(); }, []);
 
   return (
     <SafeAreaView style={s.container}>
@@ -52,73 +117,104 @@ export default function App() {
 
         {!result ? (
           <View>
+            {/* Location status */}
+            {locLoading && (
+              <View style={s.locBar}>
+                <ActivityIndicator color="#FF2D55" size="small" />
+                <Text style={s.locText}>Getting your location...</Text>
+              </View>
+            )}
+            {location && !locLoading && (
+              <View style={s.locBar}>
+                <Text style={s.locDot}>📍</Text>
+                <Text style={s.locText}>Location detected — showing nearby meters</Text>
+              </View>
+            )}
+
+            {/* Alert banner */}
             <View style={s.alertBar}>
-              <Text style={s.alertTitle}>ACTIVE ALERT - YOUR AREA</Text>
-              <Text style={s.alertSub}>Street cleaning on W 72nd St - RIGHT NOW</Text>
+              <Text style={s.alertTitle}>⚠ LIVE DATA — NYC DOT</Text>
+              <Text style={s.alertSub}>Real-time parking rules for all 15,598 NYC meters</Text>
             </View>
 
+            {/* Lookup */}
             <View style={s.card}>
               <Text style={s.cardLabel}>METER LOOKUP</Text>
               <TextInput
                 style={s.input}
-                placeholder="Enter meter number e.g. 1-001234"
+                placeholder="Enter meter number from the post"
                 placeholderTextColor="#666680"
                 value={input}
                 onChangeText={setInput}
                 autoCapitalize="none"
-                onSubmitEditing={() => checkMeter()}
+                keyboardType="numeric"
+                onSubmitEditing={checkMeter}
               />
-              <TouchableOpacity style={s.btn} onPress={() => checkMeter()}>
-                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>CHECK THIS METER</Text>}
+              <TouchableOpacity style={s.btn} onPress={checkMeter}>
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>CHECK THIS METER →</Text>}
               </TouchableOpacity>
               {error ? <Text style={s.error}>{error}</Text> : null}
             </View>
 
-            <Text style={s.sampleLabel}>TRY A SAMPLE METER</Text>
-            {Object.keys(METERS).map(id => (
-              <TouchableOpacity key={id} style={s.sampleBtn} onPress={() => { setInput(id); checkMeter(id); }}>
-                <Text style={s.sampleId}>{id}</Text>
-                <Text style={s.sampleStatus}>{METERS[id].safe ? "Safe" : "Danger"} - {METERS[id].borough}</Text>
-              </TouchableOpacity>
-            ))}
+            {/* Nearby meters from geolocation */}
+            {nearbyMeters.length > 0 && (
+              <View>
+                <Text style={s.sectionLabel}>METERS NEAR YOU</Text>
+                {nearbyMeters.map((m, i) => {
+                  const parsed = parseHours(m.meter_hours);
+                  return (
+                    <TouchableOpacity key={i} style={s.nearbyItem} onPress={() => { setInput(m.meter_number); }}>
+                      <Text style={[s.nearbyStatus, { color: parsed.safe ? "#00E676" : "#FF2D55" }]}>
+                        {parsed.safe ? "✅" : "🚨"}
+                      </Text>
+                      <View style={{flex:1}}>
+                        <Text style={s.nearbyStreet}>{m.on_street || "Unknown Street"}</Text>
+                        <Text style={s.nearbyDetail}>Meter #{m.meter_number} · {m.borough}</Text>
+                        <Text style={[s.nearbyHours, {color: parsed.safe ? "#00E676" : "#FF2D55"}]}>{parsed.info}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+
+            <Text style={s.hint}>💡 The meter number is printed on the sticker on the parking post next to your car</Text>
           </View>
         ) : (
           <View>
             <View style={[s.hero, result.safe ? s.heroSafe : s.heroDanger]}>
               <Text style={s.heroEmoji}>{result.safe ? "✅" : "🚨"}</Text>
-              <Text style={[s.verdict, result.safe ? s.green : s.red]}>{result.safe ? "SAFE TO PARK" : "DO NOT PARK"}</Text>
-              <Text style={s.verdictSub}>{result.safe ? "No restrictions active right now" : "Active tow zone - move immediately"}</Text>
-              <Text style={s.meterId}>METER #{checked}</Text>
+              <Text style={[s.verdict, result.safe ? s.green : s.red]}>
+                {result.safe ? "SAFE TO PARK" : "DO NOT PARK"}
+              </Text>
+              <Text style={s.verdictSub}>{result.info}</Text>
+              <Text style={s.meterId}>METER #{input.trim()}</Text>
             </View>
 
             {[
-              { icon: "📍", label: "Location", value: result.street },
+              { icon: "📍", label: "Street", value: result.on_street || result.street },
+              { icon: "🔀", label: "Between", value: `${result.from_street} & ${result.to_street}` },
               { icon: "🏙", label: "Borough", value: result.borough },
-              { icon: "🅿️", label: "Type", value: result.type },
-              { icon: "💵", label: "Rate", value: result.rate },
-              ...(result.safe
-                ? [{ icon: "🕐", label: "Safe Until", value: result.safeUntil, color: "#00E676" },
-                   { icon: "🧹", label: "Next Cleaning", value: result.cleaning, color: "#FFD60A" }]
-                : [{ icon: "⚠️", label: "Restriction", value: result.restriction, color: "#FF2D55" },
-                   { icon: "🚛", label: "Tow Risk", value: result.risk, color: "#FF2D55" },
-                   { icon: "💸", label: "Est. Cost", value: result.cost, color: "#FF2D55" }])
+              { icon: "🕐", label: "Meter Hours", value: result.meter_hours || "No hours listed" },
+              { icon: "📱", label: "Pay By Phone", value: result.pay_by_cell_number ? `#${result.pay_by_cell_number}` : "N/A" },
+              { icon: "🔋", label: "Status", value: result.status || "Active" },
             ].map((row, i) => (
               <View key={i} style={[s.row, result.safe ? s.rowSafe : s.rowDanger]}>
                 <Text style={s.rowIcon}>{row.icon}</Text>
-                <View>
+                <View style={{flex:1}}>
                   <Text style={s.rowLabel}>{row.label}</Text>
-                  <Text style={[s.rowValue, row.color ? { color: row.color } : {}]}>{row.value}</Text>
+                  <Text style={s.rowValue}>{row.value}</Text>
                 </View>
               </View>
             ))}
 
             <TouchableOpacity style={[s.btn, result.safe ? s.btnSafe : s.btnDanger]} onPress={reset}>
               <Text style={[s.btnText, result.safe && { color: "#001A0A" }]}>
-                {result.safe ? "Set Move Reminder" : "Find Safe Parking Nearby"}
+                {result.safe ? "🔔 Set Move Reminder" : "🗺 Find Safe Parking Nearby"}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={s.back} onPress={reset}>
-              <Text style={s.backText}>Check Another Meter</Text>
+              <Text style={s.backText}>← Check Another Meter</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -135,7 +231,10 @@ const s = StyleSheet.create({
   red: { color: "#FF2D55" },
   green: { color: "#00E676" },
   tagline: { color: "#444460", fontSize: 12, letterSpacing: 3, marginTop: 4 },
-  alertBar: { backgroundColor: "#180810", borderLeftWidth: 3, borderLeftColor: "#FF2D55", borderRadius: 10, padding: 12, marginBottom: 16 },
+  locBar: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: "#14142A", borderRadius: 10, padding: 10, marginBottom: 12 },
+  locDot: { fontSize: 14 },
+  locText: { color: "#666680", fontSize: 12 },
+  alertBar: { backgroundColor: "#0A1018", borderLeftWidth: 3, borderLeftColor: "#FF2D55", borderRadius: 10, padding: 12, marginBottom: 16 },
   alertTitle: { color: "#FF2D55", fontSize: 10, fontWeight: "700", letterSpacing: 1 },
   alertSub: { color: "rgba(240,240,255,.7)", fontSize: 11, marginTop: 2 },
   card: { backgroundColor: "#14142A", borderWidth: 1, borderColor: "#252540", borderRadius: 14, padding: 16, marginBottom: 20 },
@@ -146,10 +245,13 @@ const s = StyleSheet.create({
   btnDanger: { backgroundColor: "#FF2D55", marginTop: 10 },
   btnText: { color: "#fff", fontWeight: "700", fontSize: 13, letterSpacing: 1 },
   error: { color: "#FF2D55", fontSize: 11, marginTop: 8 },
-  sampleLabel: { color: "#444460", fontSize: 10, fontWeight: "700", letterSpacing: 2, marginBottom: 10 },
-  sampleBtn: { backgroundColor: "#14142A", borderWidth: 1, borderColor: "#252540", borderRadius: 8, padding: 12, marginBottom: 8, flexDirection: "row", justifyContent: "space-between" },
-  sampleId: { color: "#F0F0FF", fontSize: 13 },
-  sampleStatus: { color: "#666680", fontSize: 12 },
+  sectionLabel: { color: "#444460", fontSize: 10, fontWeight: "700", letterSpacing: 2, marginBottom: 10 },
+  nearbyItem: { backgroundColor: "#14142A", borderWidth: 1, borderColor: "#252540", borderRadius: 10, padding: 12, marginBottom: 8, flexDirection: "row", alignItems: "flex-start", gap: 10 },
+  nearbyStatus: { fontSize: 20 },
+  nearbyStreet: { color: "#F0F0FF", fontSize: 13, fontWeight: "600" },
+  nearbyDetail: { color: "#666680", fontSize: 11, marginTop: 2 },
+  nearbyHours: { fontSize: 11, marginTop: 2, fontWeight: "600" },
+  hint: { color: "#444460", fontSize: 11, textAlign: "center", marginTop: 20, lineHeight: 16 },
   hero: { borderRadius: 14, padding: 24, alignItems: "center", marginBottom: 14 },
   heroSafe: { backgroundColor: "#0A1610", borderWidth: 1, borderColor: "rgba(0,230,118,.3)" },
   heroDanger: { backgroundColor: "#160A0E", borderWidth: 1, borderColor: "rgba(255,45,85,.3)" },
