@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, SafeAreaView, ScrollView, Platform } from "react-native";
 
-const NYC_API = "https://data.cityofnewyork.us/resource/mvib-nh9w.json";
+const url = `${NYC_API}?$where=meter_number='${val}'&$limit=1`;
 
 function parseHours(hoursStr) {
   if (!hoursStr) return { safe: true, info: "No restrictions found" };
