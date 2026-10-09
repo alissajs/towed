@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOWED — NYC Parking Survival</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#070710;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#F0F0FF;min-height:100vh;}
+.container{max-width:500px;margin:0 auto;padding:20px;}
+.header{text-align:center;padding:40px 0 30px;}
+.logo{font-size:52px;font-weight:900;letter-spacing:6px;}
+.logo span{color:#FF2D55;}
+.tagline{color:#444460;font-size:12px;letter-spacing:3px;margin-top:6px;}
+.alert{background:#180810;border-left:3px solid #FF2D55;border-radius:10px;padding:12px;margin-bottom:16px;}
+.alert-title{color:#FF2D55;font-size:10px;font-weight:700;letter-spacing:1px;}
+.alert-sub{color:rgba(240,240,255,.7);font-size:11px;margin-top:3px;}
+.card{background:#14142A;border:1px solid #252540;border-radius:14px;padding:16px;margin-bottom:20px;}
+.card-label{color:#666680;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:10px;}
+input{width:100%;background:#1A1A32;border:1.5px solid #252540;border-radius:8px;padding:14px;color:#F0F0FF;font-size:15px;margin-bottom:10px;outline:none;}
+input:focus{border-color:#FF2D55;}
+button{width:100%;background:#FF2D55;border:none;border-radius:8px;padding:15px;color:#fff;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;}
+button:hover{background:#e0203d;}
+.error{color:#FF2D55;font-size:11px;margin-top:8px;}
+.section-label{color:#444460;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:10px;}
+.sample-btn{width:100%;background:#14142A;border:1px solid #252540;border-radius:8px;padding:12px;margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#F0F0FF;}
+.sample-id{font-family:monospace;font-size:13px;}
+.sample-status{font-size:11px;color:#666680;}
+.result{border-radius:14px;padding:24px;text-align:center;margin-bottom:14px;}
+.result.safe{background:#0A1610;border:1px solid rgba(0,230,118,.3);}
+.result.danger{background:#160A0E;border:1px solid rgba(255,45,85,.3);}
+.result-emoji{font-size:52px;margin-bottom:12px;}
+.verdict{font-size:28px;font-weight:900;letter-spacing:2px;}
+.verdict.safe{color:#00E676;}
+.verdict.danger{color:#FF2D55;}
+.verdict-sub{color:#666680;font-size:11px;margin-top:6px;}
+.meter-id{color:#444460;font-size:10px;margin-top:8px;background:#1A1A32;padding:4px 10px;border-radius:6px;display:inline-block;}
+.row{border-radius:10px;padding:12px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px;}
+.row.safe{background:#0A1610;border:1px solid rgba(0,230,118,.15);}
+.row.danger{background:#160A0E;border:1px solid rgba(255,45,85,.15);}
+.row-icon{font-size:18px;width:24px;flex-shrink:0;}
+.row-label{color:#666680;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.row-value{color:#F0F0FF;font-size:12px;font-weight:600;margin-top:2px;}
+.cta{border:none;border-radius:8px;padding:15px;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;margin-top:10px;}
+.cta.safe{background:#00E676;color:#001A0A;width:100%;}
+.cta.danger{background:#FF2D55;color:#fff;width:100%;}
+.back{background:none;border:none;color:#444460;font-size:12px;cursor:pointer;margin-top:12px;text-align:center;width:100%;padding:10px;}
+.loading{text-align:center;padding:20px;color:#666680;}
+.hint{color:#444460;font-size:11px;text-align:center;margin-top:20px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">TOW<span>ED</span></div>
+    <div class="tagline">NYC PARKING SURVIVAL</div>
+  </div>
+  <div id="app"></div>
+</div>
+<script>
+const NYC_API = 'https://data.cityofnewyork.us/resource/mvib-nh9w.json';
+
+function parseHours(h) {
+  if (!h) return { safe: true, info: 'No restrictions found' };
+  const now = new Date();
+  const day = now.getDay();
+  const hour = now.getHours();
+  const str = h.toUpperCase();
+  const isSun = day === 0;
+  const isSat = day === 6;
+  const match = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
+  if (!match) return { safe: true, info: h };
+  const start = parseInt(match[1]);
+  const end = parseInt(match[3]);
+  if (str.includes('MON-SAT') && isSun) return { safe: true, info: 'No restrictions on Sunday' };
+  if (str.includes('MON-FRI') && (isSat || isSun)) return { safe: true, info: 'No restrictions on weekends' };
+  if (hour >= start && hour < end) return { safe: false, info: `Restricted now until ${match[3]}:${match[4]}` };
+  return { safe: true, info: `Safe now. Restrictions ${match[1]}:${match[2]}–${match[3]}:${match[4]}` };
+}
+
+function showHome() {
+  document.getElementById('app').innerHTML = `
+    <div class="alert">
+      <div class="alert-title">⚠ LIVE DATA — ALL 15,598 NYC METERS</div>
+      <div class="alert-sub">Real parking rules updated daily by NYC DOT</div>
+    </div>
+    <div class="card">
+      <div class="card-label">METER LOOKUP</div>
+      <input id="meterInput" type="number" placeholder="Type meter number from the post" onkeydown="if(event.key==='Enter')checkMeter()"/>
+      <button onclick="checkMeter()">CHECK THIS METER →</button>
+      <div id="error" class="error"></div>
+    </div>
+    <div class="hint">💡 The meter number is the 7-digit number on the sticker on the parking post next to your car</div>
+  `;
+}
+
+async function checkMeter() {
+  const val = document.getElementById('meterInput').value.trim();
+  if (!val) return;
+  document.getElementById('error').textContent = '';
+  document.getElementById('app').innerHTML = '<div class="loading">Checking NYC parking rules...</div>';
+  try {
+    const res = await fetch(`${NYC_API}?$where=meter_number='${val}'&$limit=1`);
+    const data = await res.json();
+    if (data && data.length > 0) {
+      showResult(data[0], val);
+    } else {
+      showHome();
+      document.getElementById('error').textContent = 'Meter not found. Check the number on the post — it should be 7 digits.';
+      document.getElementById('meterInput').value = val;
+    }
+  } catch(e) {
+    showHome();
+    document.getElementById('error').textContent = 'Connection error. Please try again.';
+  }
+}
+
+function showResult(m, inputVal) {
+  const parsed = parseHours(m.meter_hours);
+  const cls = parsed.safe ? 'safe' : 'danger';
+  const rows = [
+    { icon: '📍', label: 'Street', value: m.on_street || 'N/A' },
+    { icon: '🔀', label: 'Between', value: `${m.from_street||''} & ${m.to_street||''}` },
+    { icon: '🏙', label: 'Borough', value: m.borough || 'N/A' },
+    { icon: '🕐', label: 'Hours', value: m.meter_hours || 'No restrictions' },
+    { icon: '📱', label: 'Pay By Phone', value: m.pay_by_cell_number ? '#'+m.pay_by_cell_number : 'N/A' },
+  ];
+  document.getElementById('app').innerHTML = `
+    <div class="result ${cls}">
+      <div class="result-emoji">${parsed.safe ? '✅' : '🚨'}</div>
+      <div class="verdict ${cls}">${parsed.safe ? 'SAFE TO PARK' : 'DO NOT PARK'}</div>
+      <div class="verdict-sub">${parsed.info}</div>
+      <div class="meter-id">METER #${inputVal}</div>
+    </div>
+    ${rows.map(r => `
+      <div class="row ${cls}">
+        <div class="row-icon">${r.icon}</div>
+        <div>
+          <div class="row-label">${r.label}</div>
+          <div class="row-value">${r.value}</div>
+        </div>
+      </div>
+    `).join('')}
+    <button class="cta ${cls}" onclick="showHome()">
+      ${parsed.safe ? '🔔 Set Move Reminder' : '🗺 Find Safe Parking Nearby'}
+    </button>
+    <button class="back" onclick="showHome()">← Check Another Meter</button>
+  `;
+}
+
+showHome();
+</script>
+</body>
+</html>

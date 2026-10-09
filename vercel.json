@@ -1,0 +1,5 @@
+cat > vercel.json << 'EOF'
+{
+  "outputDirectory": "public"
+}
+EOF
