@@ -21,9 +21,9 @@ input{width:100%;background:#1A1A32;border:1.5px solid #252540;border-radius:8px
 input:focus{border-color:#FF2D55;}
 input::placeholder{color:#444460;}
 .btn{width:100%;background:#FF2D55;border:none;border-radius:8px;padding:15px;color:#fff;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;margin-top:4px;}
-.btn:hover{background:#e0203d;}
-.btn-safe{background:#00E676;color:#001A0A;}
-.btn-safe:hover{background:#00c860;}
+.btn:hover{opacity:.9;}
+.btn-green{background:#00E676;color:#001A0A;}
+.btn-ghost{background:#1A1A32;color:#666680;margin-top:8px;}
 .error{color:#FF2D55;font-size:11px;margin-top:8px;font-weight:600;}
 .credits-bar{background:#0F0F1E;border:1px solid #252540;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
 .credits-label{color:#666680;font-size:11px;}
@@ -45,6 +45,10 @@ input::placeholder{color:#444460;}
 .row-value{color:#F0F0FF;font-size:12px;font-weight:600;margin-top:2px;}
 .back{background:none;border:none;color:#444460;font-size:12px;cursor:pointer;margin-top:12px;text-align:center;width:100%;padding:10px;}
 .hint{color:#444460;font-size:11px;text-align:center;margin-top:16px;line-height:1.6;}
+.signup-prompt{background:#14142A;border:1px solid rgba(255,214,10,.3);border-radius:14px;padding:20px;margin-bottom:16px;text-align:center;}
+.signup-prompt-icon{font-size:32px;margin-bottom:10px;}
+.signup-prompt-title{font-size:16px;font-weight:700;color:#FFD60A;margin-bottom:6px;}
+.signup-prompt-sub{color:#666680;font-size:12px;line-height:1.5;margin-bottom:14px;}
 .paywall{background:#14142A;border:1px solid rgba(255,45,85,.3);border-radius:16px;padding:28px 20px;text-align:center;}
 .paywall-icon{font-size:48px;margin-bottom:16px;}
 .paywall-title{font-size:24px;font-weight:900;color:#FF2D55;letter-spacing:1px;margin-bottom:8px;}
@@ -52,9 +56,12 @@ input::placeholder{color:#444460;}
 .paywall-price{background:#0F0F1E;border:1px solid #252540;border-radius:10px;padding:14px;margin-bottom:16px;}
 .paywall-price-num{font-size:36px;font-weight:900;color:#F0F0FF;}
 .paywall-price-label{color:#666680;font-size:11px;margin-top:4px;}
-.divider{text-align:center;color:#252540;margin:16px 0;font-size:12px;}
-.user-greeting{text-align:right;color:#666680;font-size:11px;margin-bottom:12px;}
-.user-greeting span{color:#FF2D55;font-weight:600;}
+.divider{text-align:center;color:#444460;margin:12px 0;font-size:12px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.modal{background:#14142A;border:1px solid rgba(255,214,10,.3);border-radius:16px;padding:24px;width:100%;max-width:420px;}
+.modal-title{font-size:18px;font-weight:700;color:#FFD60A;margin-bottom:6px;text-align:center;}
+.modal-sub{color:#666680;font-size:12px;text-align:center;margin-bottom:16px;line-height:1.5;}
+.modal-skip{background:none;border:none;color:#444460;font-size:11px;cursor:pointer;text-align:center;width:100%;padding:8px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -65,42 +72,40 @@ input::placeholder{color:#444460;}
   </div>
   <div id="app"></div>
 </div>
+<div id="modal-overlay" style="display:none"></div>
 
 <script>
 const API = 'https://data.cityofnewyork.us/resource/693u-uax6.json';
 
-// ── State ──────────────────────────────────────────────
 let state = {
-  screen: 'signup', // signup | home | result | paywall
+  screen: 'home',
   user: null,
   credits: 3,
+  usedWithoutSignup: 0,
   result: null,
   lastMeter: '',
 };
 
-// Load from localStorage
 function loadState() {
   try {
-    const saved = localStorage.getItem('towed_user');
+    const saved = localStorage.getItem('towed_v2');
     if (saved) {
-      const u = JSON.parse(saved);
-      state.user = u.user;
-      state.credits = u.credits !== undefined ? u.credits : 3;
-      state.screen = 'home';
+      const s = JSON.parse(saved);
+      state = { ...state, ...s, screen: 'home', result: null };
     }
   } catch(e) {}
 }
 
 function saveState() {
   try {
-    localStorage.setItem('towed_user', JSON.stringify({
+    localStorage.setItem('towed_v2', JSON.stringify({
       user: state.user,
       credits: state.credits,
+      usedWithoutSignup: state.usedWithoutSignup,
     }));
   } catch(e) {}
 }
 
-// ── Hours parser ───────────────────────────────────────
 function parseHours(h) {
   if (!h) return { safe: true, info: 'No restrictions found' };
   const now = new Date();
@@ -119,36 +124,21 @@ function parseHours(h) {
   return { safe: true, info: `Safe now. Restrictions ${match[1]}:${match[2]}–${match[3]}:${match[4]}` };
 }
 
-// ── Render ─────────────────────────────────────────────
 function render() {
   const app = document.getElementById('app');
-  if (state.screen === 'signup') app.innerHTML = signupHTML();
-  else if (state.screen === 'home') app.innerHTML = homeHTML();
+  if (state.screen === 'home') app.innerHTML = homeHTML();
   else if (state.screen === 'result') app.innerHTML = resultHTML();
   else if (state.screen === 'paywall') app.innerHTML = paywallHTML();
 }
 
-function signupHTML() {
-  return `
-    <div class="card">
-      <div class="card-label">CREATE FREE ACCOUNT</div>
-      <input id="firstName" placeholder="First Name" />
-      <input id="lastName" placeholder="Last Name" />
-      <input id="email" type="email" placeholder="Email Address" />
-      <button class="btn" onclick="signup()">GET 3 FREE LOOKUPS →</button>
-      <div id="signup-error" class="error"></div>
-    </div>
-    <div class="hint">🔒 No credit card required. 3 free meter lookups to start.</div>
-  `;
-}
-
 function homeHTML() {
+  const creditsBar = state.user
+    ? `<div class="credits-bar"><div class="credits-label">Welcome back, ${state.user.firstName} 👋</div><div class="credits-count">${state.credits} lookups left 🔍</div></div>`
+    : state.usedWithoutSignup > 0
+    ? `<div class="credits-bar"><div class="credits-label">Free lookups remaining</div><div class="credits-count">${3 - state.usedWithoutSignup} / 3 🔍</div></div>`
+    : '';
   return `
-    <div class="user-greeting">Welcome, <span>${state.user.firstName}</span> 👋</div>
-    <div class="credits-bar">
-      <div class="credits-label">Free lookups remaining</div>
-      <div class="credits-count">${state.credits} / 3 🔍</div>
-    </div>
+    ${creditsBar}
     <div class="alert">
       <div class="alert-title">⚠ LIVE DATA — ALL 15,598 NYC METERS</div>
       <div class="alert-sub">Real parking rules updated daily by NYC DOT</div>
@@ -159,7 +149,7 @@ function homeHTML() {
       <button class="btn" onclick="checkMeter()">CHECK THIS METER →</button>
       <div id="meter-error" class="error"></div>
     </div>
-    <div class="hint">💡 The meter number is the 7-digit number printed on the sticker on the parking post next to your car</div>
+    <div class="hint">💡 The meter number is the 7-digit number on the sticker on the parking post next to your car</div>
   `;
 }
 
@@ -174,10 +164,6 @@ function resultHTML() {
     { icon: '📱', label: 'Pay By Phone', value: r.pay_by_cell_number ? '#'+r.pay_by_cell_number : 'N/A' },
   ];
   return `
-    <div class="credits-bar">
-      <div class="credits-label">Free lookups remaining</div>
-      <div class="credits-count">${state.credits} / 3 🔍</div>
-    </div>
     <div class="result ${cls}">
       <div class="result-emoji">${r.safe ? '✅' : '🚨'}</div>
       <div class="verdict ${cls}">${r.safe ? 'SAFE TO PARK' : 'DO NOT PARK'}</div>
@@ -193,7 +179,7 @@ function resultHTML() {
         </div>
       </div>
     `).join('')}
-    <button class="btn ${r.safe ? 'btn-safe' : ''}" style="margin-top:12px" onclick="goHome()">
+    <button class="btn ${r.safe ? 'btn-green' : ''}" style="margin-top:12px" onclick="goHome()">
       ${r.safe ? '🔔 Set Move Reminder' : '🗺 Find Safe Parking Nearby'}
     </button>
     <button class="back" onclick="goHome()">← Check Another Meter</button>
@@ -208,36 +194,58 @@ function paywallHTML() {
       <div class="paywall-sub">NYC drivers pay $300+ when they get towed. Towed Premium keeps you protected for less than a cup of coffee.</div>
       <div class="paywall-price">
         <div class="paywall-price-num">$3.99<span style="font-size:16px;color:#666680">/mo</span></div>
-        <div class="paywall-price-label">Unlimited meter lookups · Real-time tow alerts · Sign scanner</div>
+        <div class="paywall-price-label">Unlimited lookups · Real-time alerts · Sign scanner</div>
       </div>
       <button class="btn" onclick="handlePayment()">PROTECT MY CAR — $3.99/MO →</button>
       <div class="divider">── or ──</div>
-      <button class="btn" style="background:#1A1A32;color:#666680;" onclick="handleFreeTrial()">Start 14-Day Free Trial</button>
+      <button class="btn btn-ghost" onclick="startTrial()">Start 14-Day Free Trial</button>
       <div style="color:#444460;font-size:10px;margin-top:12px;">No credit card required for trial</div>
     </div>
   `;
 }
 
-// ── Actions ────────────────────────────────────────────
-function signup() {
-  const firstName = document.getElementById('firstName').value.trim();
-  const lastName = document.getElementById('lastName').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const err = document.getElementById('signup-error');
+function showSignupModal() {
+  document.getElementById('modal-overlay').style.display = 'flex';
+  document.getElementById('modal-overlay').innerHTML = `
+    <div class="modal">
+      <div class="modal-title">🎉 Nice Find!</div>
+      <div class="modal-sub">Sign up free to save your results and get alerts before your meter expires. Takes 10 seconds.</div>
+      <input id="m-firstName" placeholder="First Name" />
+      <input id="m-lastName" placeholder="Last Name" />
+      <input id="m-email" type="email" placeholder="Email Address" />
+      <button class="btn" onclick="signupFromModal()">SAVE MY SPOT — FREE →</button>
+      <div id="modal-error" class="error" style="text-align:center"></div>
+      <button class="modal-skip" onclick="skipSignup()">Skip for now (${2 - state.usedWithoutSignup} free lookups left)</button>
+    </div>
+  `;
+}
 
-  if (!firstName) { err.textContent = 'Please enter your first name.'; return; }
-  if (!lastName) { err.textContent = 'Please enter your last name.'; return; }
-  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; return; }
-
+function signupFromModal() {
+  const firstName = document.getElementById('m-firstName').value.trim();
+  const lastName = document.getElementById('m-lastName').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const err = document.getElementById('modal-error');
+  if (!firstName) { err.textContent = 'Enter your first name.'; return; }
+  if (!lastName) { err.textContent = 'Enter your last name.'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
   state.user = { firstName, lastName, email };
   state.credits = 3;
-  state.screen = 'home';
   saveState();
+  document.getElementById('modal-overlay').style.display = 'none';
   render();
 }
 
+function skipSignup() {
+  document.getElementById('modal-overlay').style.display = 'none';
+}
+
 async function checkMeter() {
-  if (state.credits <= 0) {
+  if (!state.user && state.usedWithoutSignup >= 3) {
+    state.screen = 'paywall';
+    render();
+    return;
+  }
+  if (state.user && state.credits <= 0) {
     state.screen = 'paywall';
     render();
     return;
@@ -245,28 +253,33 @@ async function checkMeter() {
 
   const val = document.getElementById('meterInput').value.trim();
   if (!val) return;
-
-  const err = document.getElementById('meter-error');
-  err.textContent = '';
-  document.getElementById('app').innerHTML = '<div style="text-align:center;padding:40px;color:#666680;">Checking NYC parking rules...</div>';
+  document.getElementById('meter-error').textContent = '';
+  document.getElementById('app').innerHTML = '<div style="text-align:center;padding:40px;color:#666680;font-size:14px;">Checking NYC parking rules...</div>';
 
   try {
     const res = await fetch(`${API}?meter_number=${encodeURIComponent(val)}&$limit=1`);
     const data = await res.json();
-
     if (data && data.length > 0 && data[0].meter_number) {
       const meter = data[0];
       const parsed = parseHours(meter.meter_hours);
       state.result = { ...meter, ...parsed };
       state.lastMeter = val;
-      state.credits--;
+      if (state.user) {
+        state.credits = Math.max(0, state.credits - 1);
+      } else {
+        state.usedWithoutSignup++;
+      }
       saveState();
       state.screen = 'result';
       render();
+      // Show signup prompt after first use if not signed up
+      if (!state.user && state.usedWithoutSignup === 1) {
+        setTimeout(() => showSignupModal(), 1500);
+      }
     } else {
       state.screen = 'home';
       render();
-      document.getElementById('meter-error').textContent = 'Meter not found. Check the number on the post — it should be 7 digits.';
+      document.getElementById('meter-error').textContent = 'Meter not found. Check the 7-digit number on the post.';
       document.getElementById('meterInput').value = val;
     }
   } catch(e) {
@@ -277,7 +290,9 @@ async function checkMeter() {
 }
 
 function goHome() {
-  if (state.credits <= 0) {
+  if (!state.user && state.usedWithoutSignup >= 3) {
+    state.screen = 'paywall';
+  } else if (state.user && state.credits <= 0) {
     state.screen = 'paywall';
   } else {
     state.screen = 'home';
@@ -286,17 +301,20 @@ function goHome() {
 }
 
 function handlePayment() {
-  alert('Payment coming soon! We are setting up Stripe now.');
+  alert('Stripe payment coming soon!');
 }
 
-function handleFreeTrial() {
+function startTrial() {
+  if (!state.user) {
+    showSignupModal();
+    return;
+  }
   state.credits = 999;
   saveState();
   state.screen = 'home';
   render();
 }
 
-// ── Boot ───────────────────────────────────────────────
 loadState();
 render();
 </script>
