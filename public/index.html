@@ -12,20 +12,22 @@ body{background:#070710;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',
 .logo{font-size:52px;font-weight:900;letter-spacing:6px;}
 .logo span{color:#FF2D55;}
 .tagline{color:#444460;font-size:12px;letter-spacing:3px;margin-top:6px;}
+.card{background:#14142A;border:1px solid #252540;border-radius:14px;padding:20px;margin-bottom:16px;}
+.card-label{color:#666680;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:12px;}
 .alert{background:#180810;border-left:3px solid #FF2D55;border-radius:10px;padding:12px;margin-bottom:16px;}
 .alert-title{color:#FF2D55;font-size:10px;font-weight:700;letter-spacing:1px;}
 .alert-sub{color:rgba(240,240,255,.7);font-size:11px;margin-top:3px;}
-.card{background:#14142A;border:1px solid #252540;border-radius:14px;padding:16px;margin-bottom:20px;}
-.card-label{color:#666680;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:10px;}
-input{width:100%;background:#1A1A32;border:1.5px solid #252540;border-radius:8px;padding:14px;color:#F0F0FF;font-size:15px;margin-bottom:10px;outline:none;}
+input{width:100%;background:#1A1A32;border:1.5px solid #252540;border-radius:8px;padding:13px;color:#F0F0FF;font-size:15px;margin-bottom:10px;outline:none;}
 input:focus{border-color:#FF2D55;}
-button{width:100%;background:#FF2D55;border:none;border-radius:8px;padding:15px;color:#fff;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;}
-button:hover{background:#e0203d;}
-.error{color:#FF2D55;font-size:11px;margin-top:8px;}
-.section-label{color:#444460;font-size:10px;font-weight:700;letter-spacing:2px;margin-bottom:10px;}
-.sample-btn{width:100%;background:#14142A;border:1px solid #252540;border-radius:8px;padding:12px;margin-bottom:7px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#F0F0FF;}
-.sample-id{font-family:monospace;font-size:13px;}
-.sample-status{font-size:11px;color:#666680;}
+input::placeholder{color:#444460;}
+.btn{width:100%;background:#FF2D55;border:none;border-radius:8px;padding:15px;color:#fff;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;margin-top:4px;}
+.btn:hover{background:#e0203d;}
+.btn-safe{background:#00E676;color:#001A0A;}
+.btn-safe:hover{background:#00c860;}
+.error{color:#FF2D55;font-size:11px;margin-top:8px;font-weight:600;}
+.credits-bar{background:#0F0F1E;border:1px solid #252540;border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;}
+.credits-label{color:#666680;font-size:11px;}
+.credits-count{color:#FFD60A;font-weight:700;font-size:13px;}
 .result{border-radius:14px;padding:24px;text-align:center;margin-bottom:14px;}
 .result.safe{background:#0A1610;border:1px solid rgba(0,230,118,.3);}
 .result.danger{background:#160A0E;border:1px solid rgba(255,45,85,.3);}
@@ -41,12 +43,18 @@ button:hover{background:#e0203d;}
 .row-icon{font-size:18px;width:24px;flex-shrink:0;}
 .row-label{color:#666680;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
 .row-value{color:#F0F0FF;font-size:12px;font-weight:600;margin-top:2px;}
-.cta{border:none;border-radius:8px;padding:15px;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;margin-top:10px;}
-.cta.safe{background:#00E676;color:#001A0A;width:100%;}
-.cta.danger{background:#FF2D55;color:#fff;width:100%;}
 .back{background:none;border:none;color:#444460;font-size:12px;cursor:pointer;margin-top:12px;text-align:center;width:100%;padding:10px;}
-.loading{text-align:center;padding:20px;color:#666680;}
-.hint{color:#444460;font-size:11px;text-align:center;margin-top:20px;line-height:1.6;}
+.hint{color:#444460;font-size:11px;text-align:center;margin-top:16px;line-height:1.6;}
+.paywall{background:#14142A;border:1px solid rgba(255,45,85,.3);border-radius:16px;padding:28px 20px;text-align:center;}
+.paywall-icon{font-size:48px;margin-bottom:16px;}
+.paywall-title{font-size:24px;font-weight:900;color:#FF2D55;letter-spacing:1px;margin-bottom:8px;}
+.paywall-sub{color:#666680;font-size:13px;line-height:1.6;margin-bottom:20px;}
+.paywall-price{background:#0F0F1E;border:1px solid #252540;border-radius:10px;padding:14px;margin-bottom:16px;}
+.paywall-price-num{font-size:36px;font-weight:900;color:#F0F0FF;}
+.paywall-price-label{color:#666680;font-size:11px;margin-top:4px;}
+.divider{text-align:center;color:#252540;margin:16px 0;font-size:12px;}
+.user-greeting{text-align:right;color:#666680;font-size:11px;margin-bottom:12px;}
+.user-greeting span{color:#FF2D55;font-weight:600;}
 </style>
 </head>
 <body>
@@ -57,28 +65,90 @@ button:hover{background:#e0203d;}
   </div>
   <div id="app"></div>
 </div>
+
 <script>
-const NYC_API = 'https://data.cityofnewyork.us/resource/693u-uax6.json';
+const API = 'https://data.cityofnewyork.us/resource/693u-uax6.json';
+
+// ── State ──────────────────────────────────────────────
+let state = {
+  screen: 'signup', // signup | home | result | paywall
+  user: null,
+  credits: 3,
+  result: null,
+  lastMeter: '',
+};
+
+// Load from localStorage
+function loadState() {
+  try {
+    const saved = localStorage.getItem('towed_user');
+    if (saved) {
+      const u = JSON.parse(saved);
+      state.user = u.user;
+      state.credits = u.credits !== undefined ? u.credits : 3;
+      state.screen = 'home';
+    }
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('towed_user', JSON.stringify({
+      user: state.user,
+      credits: state.credits,
+    }));
+  } catch(e) {}
+}
+
+// ── Hours parser ───────────────────────────────────────
 function parseHours(h) {
   if (!h) return { safe: true, info: 'No restrictions found' };
   const now = new Date();
   const day = now.getDay();
   const hour = now.getHours();
   const str = h.toUpperCase();
-  const isSun = day === 0;
-  const isSat = day === 6;
   const match = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
   if (!match) return { safe: true, info: h };
   const start = parseInt(match[1]);
   const end = parseInt(match[3]);
+  const isSun = day === 0;
+  const isSat = day === 6;
   if (str.includes('MON-SAT') && isSun) return { safe: true, info: 'No restrictions on Sunday' };
   if (str.includes('MON-FRI') && (isSat || isSun)) return { safe: true, info: 'No restrictions on weekends' };
   if (hour >= start && hour < end) return { safe: false, info: `Restricted now until ${match[3]}:${match[4]}` };
   return { safe: true, info: `Safe now. Restrictions ${match[1]}:${match[2]}–${match[3]}:${match[4]}` };
 }
 
-function showHome() {
-  document.getElementById('app').innerHTML = `
+// ── Render ─────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  if (state.screen === 'signup') app.innerHTML = signupHTML();
+  else if (state.screen === 'home') app.innerHTML = homeHTML();
+  else if (state.screen === 'result') app.innerHTML = resultHTML();
+  else if (state.screen === 'paywall') app.innerHTML = paywallHTML();
+}
+
+function signupHTML() {
+  return `
+    <div class="card">
+      <div class="card-label">CREATE FREE ACCOUNT</div>
+      <input id="firstName" placeholder="First Name" />
+      <input id="lastName" placeholder="Last Name" />
+      <input id="email" type="email" placeholder="Email Address" />
+      <button class="btn" onclick="signup()">GET 3 FREE LOOKUPS →</button>
+      <div id="signup-error" class="error"></div>
+    </div>
+    <div class="hint">🔒 No credit card required. 3 free meter lookups to start.</div>
+  `;
+}
+
+function homeHTML() {
+  return `
+    <div class="user-greeting">Welcome, <span>${state.user.firstName}</span> 👋</div>
+    <div class="credits-bar">
+      <div class="credits-label">Free lookups remaining</div>
+      <div class="credits-count">${state.credits} / 3 🔍</div>
+    </div>
     <div class="alert">
       <div class="alert-title">⚠ LIVE DATA — ALL 15,598 NYC METERS</div>
       <div class="alert-sub">Real parking rules updated daily by NYC DOT</div>
@@ -86,68 +156,149 @@ function showHome() {
     <div class="card">
       <div class="card-label">METER LOOKUP</div>
       <input id="meterInput" type="number" placeholder="Type meter number from the post" onkeydown="if(event.key==='Enter')checkMeter()"/>
-      <button onclick="checkMeter()">CHECK THIS METER →</button>
-      <div id="error" class="error"></div>
+      <button class="btn" onclick="checkMeter()">CHECK THIS METER →</button>
+      <div id="meter-error" class="error"></div>
     </div>
-    <div class="hint">💡 The meter number is the 7-digit number on the sticker on the parking post next to your car</div>
+    <div class="hint">💡 The meter number is the 7-digit number printed on the sticker on the parking post next to your car</div>
   `;
 }
 
-async function checkMeter() {
-  const val = document.getElementById('meterInput').value.trim();
-  if (!val) return;
-  document.getElementById('error').textContent = '';
-  document.getElementById('app').innerHTML = '<div class="loading">Checking NYC parking rules...</div>';
-  try {
-    const res = await fetch(`${NYC_API}?$where=meter_number='${val}'&$limit=1`);
-    const data = await res.json();
-    if (data && data.length > 0) {
-      showResult(data[0], val);
-    } else {
-      showHome();
-      document.getElementById('error').textContent = 'Meter not found. Check the number on the post — it should be 7 digits.';
-      document.getElementById('meterInput').value = val;
-    }
-  } catch(e) {
-    showHome();
-    document.getElementById('error').textContent = 'Connection error. Please try again.';
-  }
-}
-
-function showResult(m, inputVal) {
-  const parsed = parseHours(m.meter_hours);
-  const cls = parsed.safe ? 'safe' : 'danger';
+function resultHTML() {
+  const r = state.result;
+  const cls = r.safe ? 'safe' : 'danger';
   const rows = [
-    { icon: '📍', label: 'Street', value: m.on_street || 'N/A' },
-    { icon: '🔀', label: 'Between', value: `${m.from_street||''} & ${m.to_street||''}` },
-    { icon: '🏙', label: 'Borough', value: m.borough || 'N/A' },
-    { icon: '🕐', label: 'Hours', value: m.meter_hours || 'No restrictions' },
-    { icon: '📱', label: 'Pay By Phone', value: m.pay_by_cell_number ? '#'+m.pay_by_cell_number : 'N/A' },
+    { icon: '📍', label: 'Street', value: r.on_street || 'N/A' },
+    { icon: '🔀', label: 'Between', value: `${r.from_street||''} & ${r.to_street||''}` },
+    { icon: '🏙', label: 'Borough', value: r.borough || 'N/A' },
+    { icon: '🕐', label: 'Meter Hours', value: r.meter_hours || 'No restrictions listed' },
+    { icon: '📱', label: 'Pay By Phone', value: r.pay_by_cell_number ? '#'+r.pay_by_cell_number : 'N/A' },
   ];
-  document.getElementById('app').innerHTML = `
-    <div class="result ${cls}">
-      <div class="result-emoji">${parsed.safe ? '✅' : '🚨'}</div>
-      <div class="verdict ${cls}">${parsed.safe ? 'SAFE TO PARK' : 'DO NOT PARK'}</div>
-      <div class="verdict-sub">${parsed.info}</div>
-      <div class="meter-id">METER #${inputVal}</div>
+  return `
+    <div class="credits-bar">
+      <div class="credits-label">Free lookups remaining</div>
+      <div class="credits-count">${state.credits} / 3 🔍</div>
     </div>
-    ${rows.map(r => `
+    <div class="result ${cls}">
+      <div class="result-emoji">${r.safe ? '✅' : '🚨'}</div>
+      <div class="verdict ${cls}">${r.safe ? 'SAFE TO PARK' : 'DO NOT PARK'}</div>
+      <div class="verdict-sub">${r.info}</div>
+      <div class="meter-id">METER #${state.lastMeter}</div>
+    </div>
+    ${rows.map(row => `
       <div class="row ${cls}">
-        <div class="row-icon">${r.icon}</div>
+        <div class="row-icon">${row.icon}</div>
         <div>
-          <div class="row-label">${r.label}</div>
-          <div class="row-value">${r.value}</div>
+          <div class="row-label">${row.label}</div>
+          <div class="row-value">${row.value}</div>
         </div>
       </div>
     `).join('')}
-    <button class="cta ${cls}" onclick="showHome()">
-      ${parsed.safe ? '🔔 Set Move Reminder' : '🗺 Find Safe Parking Nearby'}
+    <button class="btn ${r.safe ? 'btn-safe' : ''}" style="margin-top:12px" onclick="goHome()">
+      ${r.safe ? '🔔 Set Move Reminder' : '🗺 Find Safe Parking Nearby'}
     </button>
-    <button class="back" onclick="showHome()">← Check Another Meter</button>
+    <button class="back" onclick="goHome()">← Check Another Meter</button>
   `;
 }
 
-showHome();
+function paywallHTML() {
+  return `
+    <div class="paywall">
+      <div class="paywall-icon">🚗</div>
+      <div class="paywall-title">You've Used Your 3 Free Lookups</div>
+      <div class="paywall-sub">NYC drivers pay $300+ when they get towed. Towed Premium keeps you protected for less than a cup of coffee.</div>
+      <div class="paywall-price">
+        <div class="paywall-price-num">$3.99<span style="font-size:16px;color:#666680">/mo</span></div>
+        <div class="paywall-price-label">Unlimited meter lookups · Real-time tow alerts · Sign scanner</div>
+      </div>
+      <button class="btn" onclick="handlePayment()">PROTECT MY CAR — $3.99/MO →</button>
+      <div class="divider">── or ──</div>
+      <button class="btn" style="background:#1A1A32;color:#666680;" onclick="handleFreeTrial()">Start 14-Day Free Trial</button>
+      <div style="color:#444460;font-size:10px;margin-top:12px;">No credit card required for trial</div>
+    </div>
+  `;
+}
+
+// ── Actions ────────────────────────────────────────────
+function signup() {
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const err = document.getElementById('signup-error');
+
+  if (!firstName) { err.textContent = 'Please enter your first name.'; return; }
+  if (!lastName) { err.textContent = 'Please enter your last name.'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email.'; return; }
+
+  state.user = { firstName, lastName, email };
+  state.credits = 3;
+  state.screen = 'home';
+  saveState();
+  render();
+}
+
+async function checkMeter() {
+  if (state.credits <= 0) {
+    state.screen = 'paywall';
+    render();
+    return;
+  }
+
+  const val = document.getElementById('meterInput').value.trim();
+  if (!val) return;
+
+  const err = document.getElementById('meter-error');
+  err.textContent = '';
+  document.getElementById('app').innerHTML = '<div style="text-align:center;padding:40px;color:#666680;">Checking NYC parking rules...</div>';
+
+  try {
+    const res = await fetch(`${API}?meter_number=${encodeURIComponent(val)}&$limit=1`);
+    const data = await res.json();
+
+    if (data && data.length > 0 && data[0].meter_number) {
+      const meter = data[0];
+      const parsed = parseHours(meter.meter_hours);
+      state.result = { ...meter, ...parsed };
+      state.lastMeter = val;
+      state.credits--;
+      saveState();
+      state.screen = 'result';
+      render();
+    } else {
+      state.screen = 'home';
+      render();
+      document.getElementById('meter-error').textContent = 'Meter not found. Check the number on the post — it should be 7 digits.';
+      document.getElementById('meterInput').value = val;
+    }
+  } catch(e) {
+    state.screen = 'home';
+    render();
+    document.getElementById('meter-error').textContent = 'Connection error. Please try again.';
+  }
+}
+
+function goHome() {
+  if (state.credits <= 0) {
+    state.screen = 'paywall';
+  } else {
+    state.screen = 'home';
+  }
+  render();
+}
+
+function handlePayment() {
+  alert('Payment coming soon! We are setting up Stripe now.');
+}
+
+function handleFreeTrial() {
+  state.credits = 999;
+  saveState();
+  state.screen = 'home';
+  render();
+}
+
+// ── Boot ───────────────────────────────────────────────
+loadState();
+render();
 </script>
 </body>
 </html>
