@@ -452,15 +452,54 @@ function startTimer() {
 }
 
 function updateTimerDisplay() {
-  const el=document.getElementById('timer-display');
+  const el = document.getElementById('timer-display');
+  const arc = document.getElementById('timer-arc');
   if (!el) { clearInterval(state.timerInterval); return; }
-  if (!state.parkedExpiry) { el.textContent='--:--'; return; }
-  const now=new Date(), expiry=new Date(state.parkedExpiry);
-  const diff=Math.max(0,expiry-now);
-  const h=Math.floor(diff/3600000);
-  const m=Math.floor((diff%3600000)/60000);
-  const s=Math.floor((diff%60000)/1000);
-  el.textContent=h>0?`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`:`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if (!state.parkedExpiry) { el.textContent = '--:--'; return; }
+  
+  const now = new Date();
+  const expiry = new Date(state.parkedExpiry);
+  const parkedAt = new Date(state.parkedAt);
+  const totalDuration = expiry - parkedAt;
+  const diff = Math.max(0, expiry - now);
+  const pct = diff / totalDuration;
+  
+  // Update countdown
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  
+  if (diff === 0) {
+    el.textContent = 'EXPIRED';
+    el.style.color = '#FF6B3D';
+  } else {
+    el.textContent = h > 0
+      ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+      : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    
+    // Color changes as time runs out
+    if (diff < 10 * 60 * 1000) {
+      el.style.color = '#FF6B3D';
+    } else if (diff < 30 * 60 * 1000) {
+      el.style.color = '#FFD60A';
+    } else {
+      el.style.color = '#F2F2EE';
+    }
+  }
+
+  // Update arc
+  if (arc) {
+    const circumference = 723;
+    const offset = circumference * (1 - pct);
+    arc.style.strokeDashoffset = offset;
+    if (diff < 10 * 60 * 1000) {
+      arc.style.stroke = '#FF6B3D';
+    } else if (diff < 30 * 60 * 1000) {
+      arc.style.stroke = '#FFD60A';
+    } else {
+      arc.style.stroke = '#FFC83D';
+    }
+  }
 }
 
 // ── Actions ────────────────────────────────────────────
@@ -473,12 +512,40 @@ function goNav(id) {
 }
 
 function iParkHere() {
-  const expiry=new Date();
-  expiry.setHours(expiry.getHours()+2);
-  state.parkedAt=new Date().toISOString();
-  state.parkedExpiry=expiry.toISOString();
+  const r = state.result;
+  if (!r) return;
+
+  // Parse actual expiry time from meter hours
+  let expiryTime = new Date();
+  if (r.meter_hours) {
+    const str = r.meter_hours.toUpperCase();
+    const match = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
+    if (match) {
+      const endHour = parseInt(match[3]);
+      const endMin = parseInt(match[4]);
+      const expiry = new Date();
+      expiry.setHours(endHour, endMin, 0, 0);
+      // If expiry already passed today, set 2 hours from now
+      if (expiry <= new Date()) {
+        expiry.setTime(new Date().getTime() + 2 * 60 * 60 * 1000);
+      }
+      expiryTime = expiry;
+    } else {
+      // Default 2 hours
+      expiryTime.setTime(new Date().getTime() + 2 * 60 * 60 * 1000);
+    }
+  } else {
+    expiryTime.setTime(new Date().getTime() + 2 * 60 * 60 * 1000);
+  }
+
+  state.parkedAt = new Date().toISOString();
+  state.parkedExpiry = expiryTime.toISOString();
   saveState();
-  state.screen='parked';
+
+  // Request notification permission
+  requestNotificationPermission(expiryTime, r.on_street || 'your spot');
+
+  state.screen = 'parked';
   render();
 }
 
@@ -558,6 +625,65 @@ if (!password||password.length<6){err.textContent='Password must be at least 6 c
 body:JSON.stringify({first_name:first,last_name:last,email,password,created_at:new Date().toISOString()})  }).catch(e=>console.log('Supabase:',e));
   document.getElementById('modal-overlay').style.display='none';
   render();
+}
+
+function requestNotificationPermission(expiryTime, street) {
+  if (!('Notification' in window)) return;
+  
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      scheduleNotifications(expiryTime, street);
+    }
+  });
+}
+
+function scheduleNotifications(expiryTime, street) {
+  const now = new Date();
+  const expiry = new Date(expiryTime);
+  
+  // 30 min warning
+  const thirtyMinBefore = new Date(expiry.getTime() - 30 * 60 * 1000);
+  const thirtyMinDelay = thirtyMinBefore - now;
+  
+  // 10 min warning
+  const tenMinBefore = new Date(expiry.getTime() - 10 * 60 * 1000);
+  const tenMinDelay = tenMinBefore - now;
+
+  // Expiry notification
+  const expiryDelay = expiry - now;
+
+  if (thirtyMinDelay > 0) {
+    setTimeout(() => {
+      new Notification('🚗 TOWED — Move Your Car', {
+        body: `Meter expires in 30 minutes on ${street}. Move now to avoid a ticket!`,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        requireInteraction: true
+      });
+    }, thirtyMinDelay);
+  }
+
+  if (tenMinDelay > 0) {
+    setTimeout(() => {
+      new Notification('⚠️ TOWED — 10 Minutes Left', {
+        body: `Meter expires in 10 minutes on ${street}. Move your car NOW!`,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        requireInteraction: true
+      });
+    }, tenMinDelay);
+  }
+
+  if (expiryDelay > 0) {
+    setTimeout(() => {
+      new Notification('🚨 TOWED — Meter Expired', {
+        body: `Your meter on ${street} has expired. Move immediately to avoid a tow!`,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        requireInteraction: true
+      });
+    }, expiryDelay);
+  }
 }
 
 function skipSignup() {
