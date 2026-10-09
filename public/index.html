@@ -9,23 +9,16 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#0E1013;font-family:'Archivo','Helvetica Neue',sans-serif;color:#F2F2EE;min-height:100vh;max-width:480px;margin:0 auto;}
-.mono{font-family:'IBM Plex Mono',monospace;}
-
-/* Layout */
 .screen{min-height:100vh;display:flex;flex-direction:column;padding:0 0 80px 0;}
 .top-bar{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 0;}
 .logo{font-weight:900;font-size:22px;letter-spacing:.08em;color:#FFC83D;}
 .credits-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 12px;border:1px solid #3A3D44;border-radius:999px;color:#C9CBD1;}
 .credits-pill.warn{border-color:#5A3A2E;color:#FFB199;}
 .content{flex:1;padding:20px;}
-
-/* Bottom Nav */
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0B0D10;border-top:1px solid #22252B;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 24px;}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#8B8F98;cursor:pointer;padding:6px 0;border:none;background:none;}
 .nav-item.active{color:#FFC83D;}
 .nav-item svg{width:22px;height:22px;}
-
-/* Home */
 .hero-label{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;color:#FFC83D;margin-bottom:14px;}
 .hero-h1{font-weight:900;font-size:clamp(38px,9vw,64px);line-height:.95;letter-spacing:-.02em;margin-bottom:14px;}
 .hero-sub{font-size:16px;line-height:1.5;color:#B9BCC3;margin-bottom:24px;}
@@ -35,14 +28,13 @@ input{width:100%;background:#0E1013;border:1.5px solid #3A3D44;border-radius:12p
 input:focus{border-color:#FFC83D;}
 input::placeholder{color:#3A3D44;}
 .check-btn{width:100%;height:54px;margin-top:10px;background:#FFC83D;border:none;border-radius:14px;color:#0E1013;font-family:'Archivo',sans-serif;font-weight:900;font-size:16px;cursor:pointer;}
-.check-btn:hover{opacity:.9;}
 .error-msg{color:#FF6B3D;font-size:12px;margin-top:8px;font-family:'IBM Plex Mono',monospace;}
 .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:28px;}
 .stat{background:#181B20;border-radius:14px;padding:14px 10px;text-align:center;}
 .stat-num{font-weight:900;font-size:20px;color:#FFC83D;}
 .stat-lbl{font-size:10px;color:#8B8F98;margin-top:3px;line-height:1.3;}
 .how-title{font-weight:900;font-size:26px;margin-bottom:16px;}
-.step{background:#181B20;border-radius:14px;padding:18px;margin-bottom:8px;display:flex;gap:14px;align-items:flex-start;}
+.step{background:#181B20;border-radius:14px;padding:18px;margin-bottom:8px;display:flex;gap:14px;}
 .step-num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;color:#FFC83D;flex-shrink:0;padding-top:2px;}
 .step-title{font-weight:800;font-size:16px;margin-bottom:3px;}
 .step-desc{font-size:13px;color:#B9BCC3;line-height:1.4;}
@@ -50,18 +42,16 @@ input::placeholder{color:#3A3D44;}
 .cta-title{font-weight:900;font-size:26px;color:#0E1013;margin-bottom:6px;line-height:1.1;}
 .cta-sub{font-size:14px;color:#5A4800;margin-bottom:18px;}
 .cta-btn{height:52px;background:#0E1013;color:#F2F2EE;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;width:100%;cursor:pointer;}
-
-/* Result */
-.result-ring-wrap{display:flex;align-items:center;justify-content:center;padding:32px 0 20px;position:relative;}
-.ring-outer{width:280px;height:280px;border-radius:50%;border:1px solid #1F2A25;display:flex;align-items:center;justify-content:center;position:relative;}
+.result-ring-wrap{display:flex;align-items:center;justify-content:center;padding:32px 0 20px;}
+.ring-outer{width:280px;height:280px;border-radius:50%;border:1px solid #1F2A25;display:flex;align-items:center;justify-content:center;}
 .ring-mid{width:220px;height:220px;border-radius:50%;border:1px solid #23372D;display:flex;align-items:center;justify-content:center;}
 .ring-inner-safe{width:170px;height:170px;border-radius:50%;background:#3DDC97;box-shadow:0 0 80px rgba(61,220,151,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#08130D;}
 .ring-inner-danger{width:170px;height:170px;border-radius:50%;background:#FF6B3D;box-shadow:0 0 80px rgba(255,107,61,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1A0700;}
 .ring-word{font-weight:900;font-size:42px;line-height:1;}
 .ring-sub{font-weight:600;font-size:13px;margin-top:4px;}
-.result-headline{font-weight:900;font-size:22px;margin-bottom:4px;padding:0 4px;}
-.result-detail{font-size:14px;color:#B9BCC3;padding:0 4px;margin-bottom:16px;}
-.meter-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8B8F98;background:#181B20;padding:4px 10px;border-radius:8px;display:inline-block;margin:0 4px 16px;}
+.result-headline{font-weight:900;font-size:22px;margin-bottom:4px;}
+.result-detail{font-size:14px;color:#B9BCC3;margin-bottom:16px;}
+.meter-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8B8F98;background:#181B20;padding:4px 10px;border-radius:8px;display:inline-block;margin-bottom:16px;}
 .info-row{background:#181B20;border-radius:12px;padding:12px 14px;margin-bottom:6px;display:flex;gap:12px;align-items:flex-start;}
 .info-icon{font-size:16px;flex-shrink:0;}
 .info-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#8B8F98;letter-spacing:.05em;text-transform:uppercase;}
@@ -70,11 +60,6 @@ input::placeholder{color:#3A3D44;}
 .action-safe{background:#3DDC97;color:#08130D;}
 .action-danger{background:#FF6B3D;color:#F2F2EE;}
 .action-ghost{background:#181B20;color:#C9CBD1;}
-
-/* Parked Timer */
-.timer-header{font-weight:900;font-size:22px;margin-bottom:4px;}
-.timer-status{display:flex;align-items:center;gap:8px;font-size:13px;color:#A7AAB2;margin-bottom:24px;}
-.timer-dot{width:8px;height:8px;border-radius:50%;background:#3DDC97;}
 .timer-wrap{display:flex;align-items:center;justify-content:center;padding:16px 0 24px;position:relative;}
 .timer-ring{position:relative;width:260px;height:260px;}
 .timer-ring svg{position:absolute;top:0;left:0;}
@@ -87,45 +72,33 @@ input::placeholder{color:#3A3D44;}
 .timer-row-val.accent{color:#FFC83D;}
 .walk-btn{width:100%;height:56px;border-radius:16px;border:none;background:#FFC83D;color:#0E1013;font-family:'Archivo',sans-serif;font-weight:900;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
 .moved-btn{width:100%;height:50px;border-radius:16px;border:1px solid #3A3D44;background:none;color:#F2F2EE;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
-
-/* Map */
-.map-container{position:relative;background:#0D1117;border-radius:20px;overflow:hidden;height:340px;margin-bottom:16px;}
+.map-container{position:relative;background:#0D1117;border-radius:20px;overflow:hidden;height:300px;margin-bottom:16px;}
 .map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:32px 32px;}
 .map-street-h{position:absolute;left:0;right:0;height:6px;background:rgba(255,255,255,.05);}
 .map-street-v{position:absolute;top:0;bottom:0;width:6px;background:rgba(255,255,255,.05);}
-.map-zone{position:absolute;border-radius:6px;}
-.map-zone.high{background:rgba(255,107,61,.18);border:1px solid rgba(255,107,61,.45);}
-.map-zone.med{background:rgba(255,200,61,.12);border:1px solid rgba(255,200,61,.35);}
-.map-zone.low{background:rgba(61,220,151,.1);border:1px solid rgba(61,220,151,.3);}
 .map-user{position:absolute;width:14px;height:14px;border-radius:50%;background:#4DA3FF;border:3px solid #fff;box-shadow:0 0 0 5px rgba(77,163,255,.2);}
 .map-legend{display:flex;gap:12px;margin-bottom:16px;}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#B9BCC3;}
 .legend-dot{width:10px;height:10px;border-radius:3px;}
 .risk-list-title{font-weight:900;font-size:18px;margin-bottom:12px;}
-.risk-item{background:#181B20;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+.risk-item{background:#181B20;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.risk-item:hover{background:#1E2127;}
 .risk-badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
 .risk-badge.high{background:rgba(255,107,61,.15);}
-.risk-badge.med{background:rgba(255,200,61,.15);}
 .risk-badge.low{background:rgba(61,220,151,.12);}
 .risk-street{font-size:13px;font-weight:700;color:#F2F2EE;}
 .risk-detail{font-size:11px;color:#8B8F98;margin-top:2px;}
-.risk-dist{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#444460;}
-
-/* Account */
 .account-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFC83D,#FF6B3D);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#0E1013;margin-bottom:16px;}
 .account-name{font-weight:900;font-size:26px;margin-bottom:4px;}
 .account-email{font-size:14px;color:#8B8F98;margin-bottom:24px;}
 .account-card{background:#181B20;border-radius:16px;padding:20px;margin-bottom:12px;}
 .account-card-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8B8F98;margin-bottom:12px;text-transform:uppercase;}
-.plan-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.3);border-radius:8px;padding:6px 12px;font-size:13px;font-weight:700;color:#FFC83D;margin-bottom:12px;}
 .account-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #22252B;font-size:14px;}
 .account-stat:last-child{border-bottom:none;}
 .account-stat-lbl{color:#C9CBD1;}
 .account-stat-val{font-weight:700;}
 .upgrade-btn{width:100%;height:52px;background:#FFC83D;color:#0E1013;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px;}
 .signout-btn{width:100%;height:46px;background:none;border:1px solid #3A3D44;color:#8B8F98;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
-
-/* Modal */
 .overlay{position:fixed;inset:0;background:rgba(5,6,8,.85);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
 .modal{background:#F4F3EE;color:#121418;border-radius:28px 28px 0 0;padding:16px 24px 40px;width:100%;max-width:480px;}
 .modal-handle{width:44px;height:5px;border-radius:3px;background:#C7C6C0;margin:0 auto 20px;}
@@ -136,18 +109,16 @@ input::placeholder{color:#3A3D44;}
 .modal-btn{width:100%;height:52px;background:#121418;color:#F4F3EE;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px;}
 .modal-skip{background:none;border:none;color:#8B8F98;font-size:13px;font-weight:700;cursor:pointer;width:100%;padding:8px;text-align:center;}
 .modal-error{color:#FF6B3D;font-size:12px;margin-top:4px;text-align:center;}
-
-/* Paywall */
 .paywall-num{font-weight:900;font-size:56px;color:#FFC83D;text-align:center;margin-bottom:8px;}
 .paywall-title{font-weight:900;font-size:28px;text-align:center;margin-bottom:12px;}
 .paywall-sub{color:#B9BCC3;font-size:15px;line-height:1.5;text-align:center;margin-bottom:28px;}
 .price-card{background:#181B20;border-radius:20px;padding:24px;margin-bottom:20px;text-align:center;}
 .price-num{font-weight:900;font-size:42px;}
 .price-lbl{color:#8B8F98;font-size:13px;margin-top:4px;}
+footer{border-top:1px solid #22252B;padding:24px;text-align:center;font-size:13px;color:#8B8F98;margin-top:20px;}
 </style>
 </head>
 <body>
-
 <div id="root"></div>
 <div id="modal-overlay" style="display:none"></div>
 
@@ -158,28 +129,20 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const STRIPE_LINK = 'https://buy.stripe.com/test_6oUaEYcdT08nfyI9t3dIA00';
 
 let state = {
-  screen: 'home',
-  nav: 'check',
-  user: null,
-  credits: 3,
-  usedFree: 0,
-  result: null,
-  lastMeter: '',
-  parkedAt: null,
-  parkedExpiry: null,
-  timerInterval: null,
+  screen:'home', user:null, credits:3, usedFree:0,
+  result:null, lastMeter:'', parkedAt:null, parkedExpiry:null, timerInterval:null
 };
 
 function loadState() {
   try {
-    const s = JSON.parse(localStorage.getItem('towed_v4') || '{}');
+    const s = JSON.parse(localStorage.getItem('towed_v5') || '{}');
     if (s.user) state = {...state, ...s, screen:'home', result:null};
   } catch(e) {}
 }
 
 function saveState() {
   try {
-    localStorage.setItem('towed_v4', JSON.stringify({
+    localStorage.setItem('towed_v5', JSON.stringify({
       user:state.user, credits:state.credits, usedFree:state.usedFree,
       parkedAt:state.parkedAt, parkedExpiry:state.parkedExpiry
     }));
@@ -187,264 +150,285 @@ function saveState() {
 }
 
 function parseHours(h) {
-  if (!h) return {safe:true,info:'No restrictions found'};
-  const now=new Date(), day=now.getDay(), hour=now.getHours(), str=h.toUpperCase();
-  const m=str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
-  if (!m) return {safe:true,info:h};
-  const start=parseInt(m[1]), end=parseInt(m[3]);
-  if (str.includes('MON-SAT')&&day===0) return {safe:true,info:'No restrictions on Sunday'};
-  if (str.includes('MON-FRI')&&(day===0||day===6)) return {safe:true,info:'No restrictions on weekends'};
-  if (hour>=start&&hour<end) return {safe:false,info:`Restricted now · until ${m[3]}:${m[4]}`};
-  return {safe:true,info:`Safe now · restrictions ${m[1]}:${m[2]}–${m[3]}:${m[4]}`};
+  if (!h) return {safe:true, info:'No restrictions found'};
+  const now = new Date(), day = now.getDay(), hour = now.getHours();
+  const str = h.toUpperCase();
+  const m = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
+  if (!m) return {safe:true, info:h};
+  const start = parseInt(m[1]), end = parseInt(m[3]);
+  if (str.includes('MON-SAT') && day === 0) return {safe:true, info:'No restrictions on Sunday'};
+  if (str.includes('MON-FRI') && (day === 0 || day === 6)) return {safe:true, info:'No restrictions on weekends'};
+  if (hour >= start && hour < end) return {safe:false, info:'Restricted now · until ' + m[3] + ':' + m[4]};
+  return {safe:true, info:'Safe now · restrictions ' + m[1] + ':' + m[2] + '–' + m[3] + ':' + m[4]};
+}
+
+function getExpiryFromMeter(meterHours) {
+  const now = new Date();
+  if (!meterHours) {
+    const d = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+    return d;
+  }
+  const str = meterHours.toUpperCase();
+  const m = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
+  if (m) {
+    const expiry = new Date();
+    expiry.setHours(parseInt(m[3]), parseInt(m[4]), 0, 0);
+    if (expiry <= now) expiry.setTime(now.getTime() + 2 * 60 * 60 * 1000);
+    return expiry;
+  }
+  return new Date(now.getTime() + 2 * 60 * 60 * 1000);
 }
 
 function creditsDisplay() {
   if (state.user) {
-    const c=state.credits;
-    return `<div class="credits-pill mono ${c<=1?'warn':''}">${c} check${c!==1?'s':''} left</div>`;
+    const c = state.credits;
+    return '<div class="credits-pill ' + (c <= 1 ? 'warn' : '') + '">' + c + ' check' + (c !== 1 ? 's' : '') + ' left</div>';
   }
-  if (state.usedFree>0) {
-    const left=3-state.usedFree;
-    return `<div class="credits-pill mono ${left<=1?'warn':''}">${left} free left</div>`;
+  if (state.usedFree > 0) {
+    const left = 3 - state.usedFree;
+    return '<div class="credits-pill ' + (left <= 1 ? 'warn' : '') + '">' + left + ' free left</div>';
   }
-  return `<div class="credits-pill mono">3 free checks</div>`;
+  return '<div class="credits-pill">3 free checks</div>';
 }
 
 function navHTML(active) {
-  const items=[
-    {id:'check',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>`,label:'Check'},
-    {id:'map',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>`,label:'Map'},
-    {id:'parked',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 2-1.4h7a2 2 0 0 1 2 1.4L19 16"/><rect x="4" y="16" width="16" height="3" rx="1"/></svg>`,label:'My Car'},
-    {id:'account',icon:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`,label:'Account'},
+  const items = [
+    {id:'check', label:'Check', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>'},
+    {id:'map', label:'Map', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>'},
+    {id:'parked', label:'My Car', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 2-1.4h7a2 2 0 0 1 2 1.4L19 16"/><rect x="4" y="16" width="16" height="3" rx="1"/></svg>'},
+    {id:'account', label:'Account', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'},
   ];
-  return `<nav class="bottom-nav">${items.map(i=>`
-    <button class="nav-item ${active===i.id?'active':''}" onclick="goNav('${i.id}')">${i.icon}${i.label}</button>
-  `).join('')}</nav>`;
+  return '<nav class="bottom-nav">' + items.map(function(i) {
+    return '<button class="nav-item ' + (active === i.id ? 'active' : '') + '" onclick="goNav(\'' + i.id + '\')">' + i.svg + i.label + '</button>';
+  }).join('') + '</nav>';
 }
 
 function render() {
-  const root=document.getElementById('root');
-  if (state.screen==='home') root.innerHTML=homeHTML();
-  else if (state.screen==='result') root.innerHTML=resultHTML();
-  else if (state.screen==='paywall') root.innerHTML=paywallHTML();
-  else if (state.screen==='map') root.innerHTML=mapHTML();
-  else if (state.screen==='parked') root.innerHTML=parkedHTML();
-  else if (state.screen==='account') root.innerHTML=accountHTML();
-  if (state.screen==='parked') startTimer();
+  const root = document.getElementById('root');
+  if (state.screen === 'home') root.innerHTML = homeHTML();
+  else if (state.screen === 'result') root.innerHTML = resultHTML();
+  else if (state.screen === 'paywall') root.innerHTML = paywallHTML();
+  else if (state.screen === 'map') root.innerHTML = mapHTML();
+  else if (state.screen === 'parked') root.innerHTML = parkedHTML();
+  else if (state.screen === 'account') root.innerHTML = accountHTML();
+  if (state.screen === 'parked') startTimer();
+  if (state.screen === 'map') initMap();
 }
 
 function homeHTML() {
-  return `
-    <div class="screen">
-      <div class="top-bar"><div class="logo">TOWED</div>${creditsDisplay()}</div>
-      <div class="content">
-        <div style="height:16px"></div>
-        <div class="hero-label mono">NYC PARKING, DECODED</div>
-        <h1 class="hero-h1">Don't get towed<br>in New York.</h1>
-        <p class="hero-sub">Type your meter number. We check NYC rules right now and tell you: safe or move.</p>
-        <div class="lookup-box">
-          <div class="lookup-label mono">METER LOOKUP</div>
-          <input id="meterInput" type="number" placeholder="7-digit meter number" onkeydown="if(event.key==='Enter')checkMeter()"/>
-          <button class="check-btn" onclick="checkMeter()">Check my spot →</button>
-          <div id="meter-error" class="error-msg"></div>
-        </div>
-        <div class="stats">
-          <div class="stat"><div class="stat-num">15K+</div><div class="stat-lbl">NYC meters</div></div>
-          <div class="stat"><div class="stat-num">$115</div><div class="stat-lbl">avg ticket</div></div>
-          <div class="stat"><div class="stat-num">$300+</div><div class="stat-lbl">avg tow fee</div></div>
-        </div>
-        <div class="how-title">Three taps. Zero tickets.</div>
-        <div class="step"><div class="step-num mono">01</div><div><div class="step-title">Find your meter number</div><div class="step-desc">It's on the sticker on the post right next to your car. 7 digits.</div></div></div>
-        <div class="step"><div class="step-num mono">02</div><div><div class="step-title">Get one clear answer</div><div class="step-desc">Safe or move now — with the reason in plain English.</div></div></div>
-        <div class="step"><div class="step-num mono">03</div><div><div class="step-title">We watch the clock</div><div class="step-desc">Sign up and we alert you before cleaning or meter expires.</div></div></div>
-        <div class="cta-banner">
-          <div class="cta-title">Cheaper than one ticket.</div>
-          <div class="cta-sub">3 free checks · then $3.99/mo · 7-day free trial</div>
-          <button class="cta-btn" onclick="showSignupModal()">Create free account</button>
-        </div>
-      </div>
-      ${navHTML('check')}
-    </div>
-  `;
+  return '<div class="screen">' +
+    '<div class="top-bar"><div class="logo">TOWED</div>' + creditsDisplay() + '</div>' +
+    '<div class="content">' +
+    '<div style="height:16px"></div>' +
+    '<div class="hero-label">NYC PARKING, DECODED</div>' +
+    '<h1 class="hero-h1">Don\'t get towed<br>in New York.</h1>' +
+    '<p class="hero-sub">Type your meter number. We check NYC rules right now and tell you: safe or move.</p>' +
+    '<div class="lookup-box">' +
+    '<div class="lookup-label">METER LOOKUP</div>' +
+    '<input id="meterInput" type="number" placeholder="7-digit meter number" onkeydown="if(event.key===\'Enter\')checkMeter()"/>' +
+    '<button class="check-btn" onclick="checkMeter()">Check my spot →</button>' +
+    '<div id="meter-error" class="error-msg"></div>' +
+    '</div>' +
+    '<div class="stats">' +
+    '<div class="stat"><div class="stat-num">15K+</div><div class="stat-lbl">NYC meters</div></div>' +
+    '<div class="stat"><div class="stat-num">$115</div><div class="stat-lbl">avg ticket</div></div>' +
+    '<div class="stat"><div class="stat-num">$300+</div><div class="stat-lbl">avg tow fee</div></div>' +
+    '</div>' +
+    '<div class="how-title">Three taps. Zero tickets.</div>' +
+    '<div class="step"><div class="step-num">01</div><div><div class="step-title">Find your meter number</div><div class="step-desc">It\'s on the sticker on the post next to your car. 7 digits.</div></div></div>' +
+    '<div class="step"><div class="step-num">02</div><div><div class="step-title">Get one clear answer</div><div class="step-desc">Safe or move now — with the reason in plain English.</div></div></div>' +
+    '<div class="step"><div class="step-num">03</div><div><div class="step-title">We watch the clock</div><div class="step-desc">Sign up and we alert you before cleaning or meter expires.</div></div></div>' +
+    '<div class="cta-banner">' +
+    '<div class="cta-title">Cheaper than one ticket.</div>' +
+    '<div class="cta-sub">3 free checks · then $3.99/mo · 7-day free trial</div>' +
+    '<button class="cta-btn" onclick="showSignupModal()">Create free account</button>' +
+    '</div>' +
+    '<footer>© Towed, LLC · towed.nyc<br><span style="font-size:11px">Uses NYC Open Data. Always double-check posted signs.</span></footer>' +
+    '</div>' +
+    navHTML('check') + '</div>';
 }
 
 function resultHTML() {
-  const r=state.result;
-  const safe=r.safe;
-  const rows=[
-    {icon:'📍',label:'Street',val:r.on_street||'N/A'},
-    {icon:'🔀',label:'Between',val:`${r.from_street||''} & ${r.to_street||''}`},
-    {icon:'🏙',label:'Borough',val:r.borough||'N/A'},
-    {icon:'🕐',label:'Meter Hours',val:r.meter_hours||'No restrictions listed'},
-    {icon:'📱',label:'Pay By Phone',val:r.pay_by_cell_number?'#'+r.pay_by_cell_number:'N/A'},
+  const r = state.result;
+  const safe = r.safe;
+  const rows = [
+    {icon:'📍', label:'Street', val:r.on_street || 'N/A'},
+    {icon:'🔀', label:'Between', val:(r.from_street || '') + ' & ' + (r.to_street || '')},
+    {icon:'🏙', label:'Borough', val:r.borough || 'N/A'},
+    {icon:'🕐', label:'Meter Hours', val:r.meter_hours || 'No restrictions listed'},
+    {icon:'📱', label:'Pay By Phone', val:r.pay_by_cell_number ? '#' + r.pay_by_cell_number : 'N/A'},
   ];
-  return `
-    <div class="screen">
-      <div class="top-bar"><div class="logo">TOWED</div>${creditsDisplay()}</div>
-      <div class="content">
-        <div class="result-ring-wrap">
-          <div class="ring-outer">
-            <div class="ring-mid">
-              <div class="${safe?'ring-inner-safe':'ring-inner-danger'}">
-                <div class="ring-word">${safe?'SAFE':'MOVE'}</div>
-                <div class="ring-sub">${safe?'to park here':'NOW'}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="result-headline">${safe?'Good to go':'Tow risk: HIGH'}</div>
-        <div class="result-detail">${r.info}</div>
-        <div class="meter-tag mono">METER #${state.lastMeter}</div>
-        ${rows.map(row=>`
-          <div class="info-row">
-            <div class="info-icon">${row.icon}</div>
-            <div><div class="info-label mono">${row.label}</div><div class="info-val">${row.val}</div></div>
-          </div>
-        `).join('')}
-        ${safe?`<button class="action-btn action-safe" onclick="iParkHere()">I parked here ✓</button>`:''}
-        <button class="action-btn ${safe?'action-ghost':'action-danger'}" onclick="goHome()">${safe?'← Check another':'Find safe parking →'}</button>
-      </div>
-      ${navHTML('check')}
-    </div>
-  `;
+  return '<div class="screen">' +
+    '<div class="top-bar"><div class="logo">TOWED</div>' + creditsDisplay() + '</div>' +
+    '<div class="content">' +
+    '<div class="result-ring-wrap"><div class="ring-outer"><div class="ring-mid">' +
+    '<div class="' + (safe ? 'ring-inner-safe' : 'ring-inner-danger') + '">' +
+    '<div class="ring-word">' + (safe ? 'SAFE' : 'MOVE') + '</div>' +
+    '<div class="ring-sub">' + (safe ? 'to park here' : 'NOW') + '</div>' +
+    '</div></div></div></div>' +
+    '<div class="result-headline">' + (safe ? 'Good to go' : 'Tow risk: HIGH') + '</div>' +
+    '<div class="result-detail">' + r.info + '</div>' +
+    '<div class="meter-tag">METER #' + state.lastMeter + '</div>' +
+    rows.map(function(row) {
+      return '<div class="info-row"><div class="info-icon">' + row.icon + '</div><div><div class="info-label">' + row.label + '</div><div class="info-val">' + row.val + '</div></div></div>';
+    }).join('') +
+    (safe ? '<button class="action-btn action-safe" onclick="iParkHere()">I parked here ✓</button>' : '') +
+    '<button class="action-btn ' + (safe ? 'action-ghost' : 'action-danger') + '" onclick="goHome()">' + (safe ? '← Check another' : 'Find safe parking →') + '</button>' +
+    '</div>' + navHTML('check') + '</div>';
 }
 
 function parkedHTML() {
-  const expiry=state.parkedExpiry?new Date(state.parkedExpiry):null;
-  const expiryStr=expiry?expiry.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'--:--';
-  const street=state.result?.on_street||'Your spot';
-  const cleaning=state.result?.meter_hours||'Check posted signs';
-  return `
-    <div class="screen">
-      <div class="top-bar"><div style="font-weight:900;font-size:20px">Your car</div><div class="timer-status"><div class="timer-dot"></div>Live alerts on</div></div>
-      <div class="content">
-        <div style="font-size:14px;color:#8B8F98;margin-bottom:20px;font-family:'IBM Plex Mono',monospace;">${street}</div>
-        <div class="timer-wrap">
-          <div class="timer-ring">
-            <svg width="260" height="260" viewBox="0 0 260 260">
-              <circle cx="130" cy="130" r="115" fill="none" stroke="#1E2127" stroke-width="14"/>
-              <circle cx="130" cy="130" r="115" fill="none" stroke="#FFC83D" stroke-width="14" stroke-linecap="round" stroke-dasharray="723" stroke-dashoffset="200" transform="rotate(-90 130 130)" id="timer-arc"/>
-            </svg>
-            <div class="timer-center">
-              <div class="timer-time mono" id="timer-display">--:--</div>
-              <div class="timer-lbl">left on meter</div>
-            </div>
-          </div>
-        </div>
-        <div class="timer-row"><span class="timer-row-lbl">Meter expires</span><span class="timer-row-val">${expiryStr}</span></div>
-        <div class="timer-row"><span class="timer-row-lbl">Next street cleaning</span><span class="timer-row-val">${cleaning}</span></div>
-        <div class="timer-row"><span class="timer-row-lbl">Remind me</span><span class="timer-row-val accent">30 min before ✓</span></div>
-        <div style="height:16px"></div>
-        <button class="walk-btn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>
-          Walk me back to my car
-        </button>
-        <button class="moved-btn" onclick="goHome()">I moved my car</button>
-      </div>
-      ${navHTML('parked')}
-    </div>
-  `;
+  const expiry = state.parkedExpiry ? new Date(state.parkedExpiry) : null;
+  const expiryStr = expiry ? expiry.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--';
+  const street = (state.result && state.result.on_street) ? state.result.on_street : 'Your spot';
+  const cleaning = (state.result && state.result.meter_hours) ? state.result.meter_hours : 'Check posted signs';
+  return '<div class="screen">' +
+    '<div class="top-bar"><div style="font-weight:900;font-size:20px">Your car</div>' +
+    '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#A7AAB2"><div style="width:8px;height:8px;border-radius:50%;background:#3DDC97"></div>Live alerts on</div></div>' +
+    '<div class="content">' +
+    '<div style="font-size:13px;color:#8B8F98;margin-bottom:20px;font-family:IBM Plex Mono,monospace">' + street + '</div>' +
+    '<div class="timer-wrap"><div class="timer-ring">' +
+    '<svg width="260" height="260" viewBox="0 0 260 260">' +
+    '<circle cx="130" cy="130" r="115" fill="none" stroke="#1E2127" stroke-width="14"/>' +
+    '<circle cx="130" cy="130" r="115" fill="none" stroke="#FFC83D" stroke-width="14" stroke-linecap="round" stroke-dasharray="723" stroke-dashoffset="0" transform="rotate(-90 130 130)" id="timer-arc"/>' +
+    '</svg>' +
+    '<div class="timer-center"><div class="timer-time" id="timer-display">--:--</div><div class="timer-lbl">left on meter</div></div>' +
+    '</div></div>' +
+    '<div class="timer-row"><span class="timer-row-lbl">Meter expires</span><span class="timer-row-val">' + expiryStr + '</span></div>' +
+    '<div class="timer-row"><span class="timer-row-lbl">Hours</span><span class="timer-row-val">' + cleaning + '</span></div>' +
+    '<div class="timer-row"><span class="timer-row-lbl">Alerts</span><span class="timer-row-val accent">30 min & 10 min before ✓</span></div>' +
+    '<div style="height:16px"></div>' +
+    '<button class="walk-btn">📍 Walk me back to my car</button>' +
+    '<button class="moved-btn" onclick="goHome()">I moved my car</button>' +
+    '</div>' + navHTML('parked') + '</div>';
 }
 
 function mapHTML() {
-  return `
-    <div class="screen">
-      <div class="top-bar"><div class="logo">TOWED</div><div style="font-size:12px;color:#8B8F98;font-family:'IBM Plex Mono',monospace">TOW RISK MAP</div></div>
-      <div class="content">
-        <div class="map-container">
-          <div class="map-grid"></div>
-          <div class="map-street-h" style="top:25%"></div>
-          <div class="map-street-h" style="top:50%"></div>
-          <div class="map-street-h" style="top:75%"></div>
-          <div class="map-street-v" style="left:25%"></div>
-          <div class="map-street-v" style="left:50%"></div>
-          <div class="map-street-v" style="left:75%"></div>
-          <div class="map-zone high" style="top:10%;left:15%;width:22%;height:18%"></div>
-          <div class="map-zone med" style="top:52%;left:55%;width:25%;height:16%"></div>
-          <div class="map-zone high" style="top:65%;left:10%;width:20%;height:15%"></div>
-          <div class="map-zone low" style="top:28%;left:55%;width:20%;height:18%"></div>
-          <div class="map-zone med" style="top:75%;left:42%;width:18%;height:14%"></div>
-          <div class="map-user" style="top:48%;left:48%;transform:translate(-50%,-50%)"></div>
-          <div style="position:absolute;top:12px;left:12px;right:12px;background:rgba(13,17,23,.95);border:1px solid #3A3D44;border-radius:10px;padding:9px 12px;font-size:12px;color:#8B8F98;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:8px;">
-            🔍 <span>Tow risk zones near you</span>
-          </div>
-        </div>
-        <div class="map-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:#FF6B3D"></div>High risk</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#FFC83D"></div>Medium</div>
-          <div class="legend-item"><div class="legend-dot" style="background:#3DDC97"></div>Safe</div>
-        </div>
-        <div class="risk-list-title">Hotspots Near You</div>
-        <div class="risk-item"><div class="risk-badge high">🚨</div><div style="flex:1"><div class="risk-street">W 72nd St</div><div class="risk-detail">Cleaning until 9:30AM · Trucks active</div></div><div class="risk-dist">0.1mi</div></div>
-        <div class="risk-item"><div class="risk-badge med">⏱</div><div style="flex:1"><div class="risk-street">Amsterdam Ave</div><div class="risk-detail">Cleaning starts in 42 min</div></div><div class="risk-dist">0.3mi</div></div>
-        <div class="risk-item"><div class="risk-badge low">✅</div><div style="flex:1"><div class="risk-street">Columbus Ave</div><div class="risk-detail">Safe until 6:00 PM today</div></div><div class="risk-dist">0.4mi</div></div>
-        <div class="risk-item"><div class="risk-badge high">🚨</div><div style="flex:1"><div class="risk-street">Broadway & 70th</div><div class="risk-detail">No Standing 7AM–7PM</div></div><div class="risk-dist">0.5mi</div></div>
-      </div>
-      ${navHTML('map')}
-    </div>
-  `;
+  return '<div class="screen">' +
+    '<div class="top-bar"><div class="logo">TOWED</div><div style="font-size:11px;color:#8B8F98;font-family:IBM Plex Mono,monospace">TOW RISK MAP</div></div>' +
+    '<div class="content">' +
+    '<div id="map-status" style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#8B8F98;margin-bottom:12px">📍 Getting your location...</div>' +
+    '<div class="map-container">' +
+    '<div class="map-grid"></div>' +
+    '<div class="map-street-h" style="top:25%"></div>' +
+    '<div class="map-street-h" style="top:50%"></div>' +
+    '<div class="map-street-h" style="top:75%"></div>' +
+    '<div class="map-street-v" style="left:25%"></div>' +
+    '<div class="map-street-v" style="left:50%"></div>' +
+    '<div class="map-street-v" style="left:75%"></div>' +
+    '<div class="map-user" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>' +
+    '<div style="position:absolute;top:12px;left:12px;right:12px;background:rgba(13,17,23,.95);border:1px solid #3A3D44;border-radius:10px;padding:9px 12px;font-size:11px;color:#8B8F98;font-family:IBM Plex Mono,monospace">🔍 Meters near you</div>' +
+    '</div>' +
+    '<div class="map-legend">' +
+    '<div class="legend-item"><div class="legend-dot" style="background:#FF6B3D"></div>High risk</div>' +
+    '<div class="legend-item"><div class="legend-dot" style="background:#3DDC97"></div>Safe</div>' +
+    '</div>' +
+    '<div class="risk-list-title">Meters Near You</div>' +
+    '<div id="nearby-list"><div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Loading nearby meters...</div></div>' +
+    '</div>' + navHTML('map') + '</div>';
 }
 
 function accountHTML() {
   if (!state.user) {
-    return `
-      <div class="screen">
-        <div class="top-bar"><div class="logo">TOWED</div></div>
-        <div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;">
-          <div style="font-size:48px;margin-bottom:20px;">👤</div>
-          <div style="font-weight:900;font-size:26px;margin-bottom:8px;">No account yet</div>
-          <div style="color:#8B8F98;font-size:15px;margin-bottom:28px;">Sign up free to save your spots, get alerts, and unlock premium features.</div>
-          <button class="check-btn" style="max-width:280px" onclick="showSignupModal()">Create free account →</button>
-        </div>
-        ${navHTML('account')}
-      </div>
-    `;
+    return '<div class="screen">' +
+      '<div class="top-bar"><div class="logo">TOWED</div></div>' +
+      '<div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center">' +
+      '<div style="font-size:48px;margin-bottom:20px">👤</div>' +
+      '<div style="font-weight:900;font-size:26px;margin-bottom:8px">No account yet</div>' +
+      '<div style="color:#8B8F98;font-size:15px;margin-bottom:28px">Sign up free to save your spots and get alerts.</div>' +
+      '<button class="check-btn" style="max-width:280px" onclick="showSignupModal()">Create free account →</button>' +
+      '</div>' + navHTML('account') + '</div>';
   }
-  const initial=(state.user.firstName[0]+(state.user.lastName[0]||'')).toUpperCase();
-  return `
-    <div class="screen">
-      <div class="top-bar"><div class="logo">TOWED</div></div>
-      <div class="content">
-        <div style="height:16px"></div>
-        <div class="account-avatar">${initial}</div>
-        <div class="account-name">${state.user.firstName} ${state.user.lastName}</div>
-        <div class="account-email">${state.user.email}</div>
-        <div class="account-card">
-          <div class="account-card-title mono">Current Plan</div>
-          <div class="plan-badge">⚡ Free Plan</div>
-          <div class="account-stat"><span class="account-stat-lbl">Checks remaining</span><span class="account-stat-val">${state.credits}</span></div>
-          <div class="account-stat"><span class="account-stat-lbl">Trial period</span><span class="account-stat-val">7 days</span></div>
-          <div class="account-stat"><span class="account-stat-lbl">Monthly price after trial</span><span class="account-stat-val">$3.99/mo</span></div>
-        </div>
-        <button class="upgrade-btn" onclick="window.location.href='${STRIPE_LINK}'">Upgrade to Premium →</button>
-        <button class="signout-btn" onclick="signOut()">Sign out</button>
-      </div>
-      ${navHTML('account')}
-    </div>
-  `;
+  const initial = (state.user.firstName[0] + (state.user.lastName ? state.user.lastName[0] : '')).toUpperCase();
+  return '<div class="screen">' +
+    '<div class="top-bar"><div class="logo">TOWED</div></div>' +
+    '<div class="content">' +
+    '<div style="height:16px"></div>' +
+    '<div class="account-avatar">' + initial + '</div>' +
+    '<div class="account-name">' + state.user.firstName + ' ' + (state.user.lastName || '') + '</div>' +
+    '<div class="account-email">' + state.user.email + '</div>' +
+    '<div class="account-card">' +
+    '<div class="account-card-title">Current Plan</div>' +
+    '<div class="account-stat"><span class="account-stat-lbl">Plan</span><span class="account-stat-val">Free</span></div>' +
+    '<div class="account-stat"><span class="account-stat-lbl">Checks remaining</span><span class="account-stat-val">' + state.credits + '</span></div>' +
+    '<div class="account-stat"><span class="account-stat-lbl">Trial period</span><span class="account-stat-val">7 days</span></div>' +
+    '</div>' +
+    '<button class="upgrade-btn" onclick="window.location.href=\'' + STRIPE_LINK + '\'">Upgrade to Premium →</button>' +
+    '<button class="signout-btn" onclick="signOut()">Sign out</button>' +
+    '</div>' + navHTML('account') + '</div>';
 }
 
 function paywallHTML() {
-  return `
-    <div class="screen">
-      <div class="top-bar"><div class="logo">TOWED</div></div>
-      <div class="content" style="padding-top:40px;">
-        <div class="paywall-num">3/3</div>
-        <div class="paywall-title">Free checks used up.</div>
-        <div class="paywall-sub">NYC drivers pay $115–$500+ when they get caught. Towed keeps you protected for less than a MetroCard swipe.</div>
-        <div class="price-card">
-          <div class="price-num">$3.99<span style="font-size:18px;color:#8B8F98">/mo</span></div>
-          <div class="price-lbl">Unlimited checks · Tow alerts · Sign scanner</div>
-        </div>
-        <button class="check-btn" onclick="window.location.href='${STRIPE_LINK}'">Start 7-day free trial →</button>
-        <div style="color:#8B8F98;font-size:12px;margin-top:10px;text-align:center;">No credit card required for trial</div>
-      </div>
-      ${navHTML('check')}
-    </div>
-  `;
+  return '<div class="screen">' +
+    '<div class="top-bar"><div class="logo">TOWED</div></div>' +
+    '<div class="content" style="padding-top:40px">' +
+    '<div class="paywall-num">3/3</div>' +
+    '<div class="paywall-title">Free checks used up.</div>' +
+    '<div class="paywall-sub">NYC drivers pay $115–$500+ when they get caught. Towed keeps you protected for less than a MetroCard swipe.</div>' +
+    '<div class="price-card"><div class="price-num">$3.99<span style="font-size:18px;color:#8B8F98">/mo</span></div><div class="price-lbl">Unlimited checks · Tow alerts · Sign scanner</div></div>' +
+    '<button class="check-btn" onclick="window.location.href=\'' + STRIPE_LINK + '\'">Start 7-day free trial →</button>' +
+    '<div style="color:#8B8F98;font-size:12px;margin-top:10px;text-align:center">No credit card required for trial</div>' +
+    '</div>' + navHTML('check') + '</div>';
 }
 
-// ── Timer ──────────────────────────────────────────────
+function initMap() {
+  if (!navigator.geolocation) {
+    const el = document.getElementById('map-status');
+    if (el) el.textContent = 'Geolocation not supported on this browser.';
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    function(pos) { loadNearbyMeters(pos.coords.latitude, pos.coords.longitude); },
+    function() {
+      const el = document.getElementById('map-status');
+      if (el) el.textContent = 'Location access denied. Enable to see nearby meters.';
+      const listEl = document.getElementById('nearby-list');
+      if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Allow location access to see meters near you.</div>';
+    }
+  );
+}
+
+async function loadNearbyMeters(lat, lng) {
+  const statusEl = document.getElementById('map-status');
+  const listEl = document.getElementById('nearby-list');
+  if (statusEl) statusEl.textContent = '📍 Showing meters near you';
+  try {
+    const delta = 0.004;
+    const url = API + '?$where=lat>' + (lat-delta) + ' AND lat<' + (lat+delta) + ' AND long>' + (lng-delta) + ' AND long<' + (lng+delta) + '&$limit=10';
+    const res = await fetch(url);
+    const data = await res.json();
+    if (!data || data.length === 0) {
+      if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">No meters found nearby. Try checking a meter number directly.</div>';
+      return;
+    }
+    if (listEl) {
+      listEl.innerHTML = data.map(function(m) {
+        const parsed = parseHours(m.meter_hours);
+        const cls = parsed.safe ? 'low' : 'high';
+        const icon = parsed.safe ? '✅' : '🚨';
+        const color = parsed.safe ? '#3DDC97' : '#FF6B3D';
+        return '<div class="risk-item" onclick="selectNearbyMeter(\'' + m.meter_number + '\')">' +
+          '<div class="risk-badge ' + cls + '">' + icon + '</div>' +
+          '<div style="flex:1"><div class="risk-street">' + (m.on_street || 'Unknown Street') + '</div>' +
+          '<div class="risk-detail">Meter #' + m.meter_number + ' · ' + (m.borough || '') + ' · ' + parsed.info + '</div></div>' +
+          '<div style="font-size:11px;color:' + color + ';font-weight:700">' + (parsed.safe ? 'SAFE' : 'RISK') + '</div>' +
+          '</div>';
+      }).join('');
+    }
+  } catch(e) {
+    if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Could not load nearby meters.</div>';
+  }
+}
+
+function selectNearbyMeter(meterNum) {
+  state.screen = 'home';
+  render();
+  setTimeout(function() {
+    const inp = document.getElementById('meterInput');
+    if (inp) { inp.value = meterNum; checkMeter(); }
+  }, 150);
+}
+
 function startTimer() {
   if (state.timerInterval) clearInterval(state.timerInterval);
   updateTimerDisplay();
@@ -456,244 +440,166 @@ function updateTimerDisplay() {
   const arc = document.getElementById('timer-arc');
   if (!el) { clearInterval(state.timerInterval); return; }
   if (!state.parkedExpiry) { el.textContent = '--:--'; return; }
-  
   const now = new Date();
   const expiry = new Date(state.parkedExpiry);
   const parkedAt = new Date(state.parkedAt);
   const totalDuration = expiry - parkedAt;
   const diff = Math.max(0, expiry - now);
-  const pct = diff / totalDuration;
-  
-  // Update countdown
+  const pct = totalDuration > 0 ? diff / totalDuration : 0;
   const h = Math.floor(diff / 3600000);
   const m = Math.floor((diff % 3600000) / 60000);
   const s = Math.floor((diff % 60000) / 1000);
-  
   if (diff === 0) {
     el.textContent = 'EXPIRED';
     el.style.color = '#FF6B3D';
   } else {
     el.textContent = h > 0
-      ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
-      : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-    
-    // Color changes as time runs out
-    if (diff < 10 * 60 * 1000) {
-      el.style.color = '#FF6B3D';
-    } else if (diff < 30 * 60 * 1000) {
-      el.style.color = '#FFD60A';
-    } else {
-      el.style.color = '#F2F2EE';
-    }
+      ? h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0')
+      : String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    el.style.color = diff < 10*60*1000 ? '#FF6B3D' : diff < 30*60*1000 ? '#FFD60A' : '#F2F2EE';
   }
-
-  // Update arc
   if (arc) {
-    const circumference = 723;
-    const offset = circumference * (1 - pct);
-    arc.style.strokeDashoffset = offset;
-    if (diff < 10 * 60 * 1000) {
-      arc.style.stroke = '#FF6B3D';
-    } else if (diff < 30 * 60 * 1000) {
-      arc.style.stroke = '#FFD60A';
-    } else {
-      arc.style.stroke = '#FFC83D';
-    }
+    arc.style.strokeDashoffset = 723 * (1 - pct);
+    arc.style.stroke = diff < 10*60*1000 ? '#FF6B3D' : diff < 30*60*1000 ? '#FFD60A' : '#FFC83D';
   }
-}
-
-// ── Actions ────────────────────────────────────────────
-function goNav(id) {
-  if (id==='check') { state.screen='home'; }
-  else if (id==='map') { state.screen='map'; }
-  else if (id==='parked') { state.screen='parked'; }
-  else if (id==='account') { state.screen='account'; }
-  render();
-}
-
-function iParkHere() {
-  const r = state.result;
-  if (!r) return;
-
-  // Parse actual expiry time from meter hours
-  let expiryTime = new Date();
-  if (r.meter_hours) {
-    const str = r.meter_hours.toUpperCase();
-    const match = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
-    if (match) {
-      const endHour = parseInt(match[3]);
-      const endMin = parseInt(match[4]);
-      const expiry = new Date();
-      expiry.setHours(endHour, endMin, 0, 0);
-      // If expiry already passed today, set 2 hours from now
-      if (expiry <= new Date()) {
-        expiry.setTime(new Date().getTime() + 2 * 60 * 60 * 1000);
-      }
-      expiryTime = expiry;
-    } else {
-      // Default 2 hours
-      expiryTime.setTime(new Date().getTime() + 2 * 60 * 60 * 1000);
-    }
-  } else {
-    expiryTime.setTime(new Date().getTime() + 2 * 60 * 60 * 1000);
-  }
-
-  state.parkedAt = new Date().toISOString();
-  state.parkedExpiry = expiryTime.toISOString();
-  saveState();
-
-  // Request notification permission
-  requestNotificationPermission(expiryTime, r.on_street || 'your spot');
-
-  state.screen = 'parked';
-  render();
-}
-
-function goHome() {
-  if (!state.user&&state.usedFree>=3) { state.screen='paywall'; }
-  else if (state.user&&state.credits<=0) { state.screen='paywall'; }
-  else { state.screen='home'; }
-  render();
-}
-
-async function checkMeter() {
-  if (!state.user&&state.usedFree>=3) { state.screen='paywall'; render(); return; }
-  if (state.user&&state.credits<=0) { state.screen='paywall'; render(); return; }
-  const val=document.getElementById('meterInput').value.trim();
-  if (!val) return;
-  document.getElementById('meter-error').textContent='';
-  document.getElementById('root').innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif;">Checking NYC parking rules…</div>';
-  try {
-    const res=await fetch(`${API}?meter_number=${encodeURIComponent(val)}&$limit=1`);
-    const data=await res.json();
-    if (data&&data.length>0&&data[0].meter_number) {
-      const meter=data[0];
-      const parsed=parseHours(meter.meter_hours);
-      state.result={...meter,...parsed};
-      state.lastMeter=val;
-      if (state.user) state.credits=Math.max(0,state.credits-1);
-      else state.usedFree++;
-      saveState();
-      state.screen='result';
-      render();
-      if (!state.user&&state.usedFree===1) setTimeout(()=>showSignupModal(),2000);
-    } else {
-      state.screen='home'; render();
-      document.getElementById('meter-error').textContent='Meter not found. Check the 7-digit number on the post.';
-      document.getElementById('meterInput').value=val;
-    }
-  } catch(e) {
-    state.screen='home'; render();
-    document.getElementById('meter-error').textContent='Connection error. Try again.';
-  }
-}
-
-function showSignupModal() {
-  const left=3-state.usedFree;
-  document.getElementById('modal-overlay').style.display='flex';
-  document.getElementById('modal-overlay').innerHTML=`
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Don't get caught like this again.</div>
-      <div class="modal-sub">Sign up free and we'll ping you before cleaning, meter, or tow-risk windows hit your car.</div>
-      <input class="modal-input" id="m-first" placeholder="First name"/>
-      <input class="modal-input" id="m-last" placeholder="Last name"/>
-      <input class="modal-input" id="m-password" type="password" placeholder="Create a password (min 6 characters)"/>
-      <button class="modal-btn" onclick="signupFromModal()">Create free account →</button>
-      <div id="modal-err" class="modal-error"></div>
-      <button class="modal-skip" onclick="skipSignup()">Skip for now · ${left} free check${left!==1?'s':''} left</button>
-    </div>
-  `;
-}
-
-function signupFromModal() {
-  const first=document.getElementById('m-first').value.trim();
-  const last=document.getElementById('m-last').value.trim();
-  const email=document.getElementById('m-email').value.trim();
-  const err=document.getElementById('modal-err');
-  if (!first){err.textContent='Enter your first name.';return;}
-  if (!last){err.textContent='Enter your last name.';return;}
-  if (!email||!email.includes('@')){err.textContent='Enter a valid email.';return;}
-  const password=document.getElementById('m-password').value.trim();
-if (!password||password.length<6){err.textContent='Password must be at least 6 characters.';return;}
-  state.user={firstName:first,lastName:last,email};
-  state.credits=10;
-  saveState();
-  fetch(`${SUPABASE_URL}/rest/v1/Sign%20ups`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Prefer':'return=minimal'},
-body:JSON.stringify({first_name:first,last_name:last,email,password,created_at:new Date().toISOString()})  }).catch(e=>console.log('Supabase:',e));
-  document.getElementById('modal-overlay').style.display='none';
-  render();
 }
 
 function requestNotificationPermission(expiryTime, street) {
   if (!('Notification' in window)) return;
-  
-  Notification.requestPermission().then(permission => {
-    if (permission === 'granted') {
-      scheduleNotifications(expiryTime, street);
-    }
+  Notification.requestPermission().then(function(permission) {
+    if (permission === 'granted') scheduleNotifications(expiryTime, street);
   });
 }
 
 function scheduleNotifications(expiryTime, street) {
   const now = new Date();
   const expiry = new Date(expiryTime);
-  
-  // 30 min warning
-  const thirtyMinBefore = new Date(expiry.getTime() - 30 * 60 * 1000);
-  const thirtyMinDelay = thirtyMinBefore - now;
-  
-  // 10 min warning
-  const tenMinBefore = new Date(expiry.getTime() - 10 * 60 * 1000);
-  const tenMinDelay = tenMinBefore - now;
+  const thirtyMin = expiry.getTime() - 30*60*1000 - now.getTime();
+  const tenMin = expiry.getTime() - 10*60*1000 - now.getTime();
+  const atExpiry = expiry.getTime() - now.getTime();
+  if (thirtyMin > 0) setTimeout(function() {
+    new Notification('🚗 TOWED — Move Your Car', {body:'Meter expires in 30 minutes on ' + street + '. Move now!', requireInteraction:true});
+  }, thirtyMin);
+  if (tenMin > 0) setTimeout(function() {
+    new Notification('⚠️ TOWED — 10 Minutes Left', {body:'Meter expires in 10 minutes on ' + street + '. Move NOW!', requireInteraction:true});
+  }, tenMin);
+  if (atExpiry > 0) setTimeout(function() {
+    new Notification('🚨 TOWED — Meter Expired', {body:'Your meter on ' + street + ' has expired!', requireInteraction:true});
+  }, atExpiry);
+}
 
-  // Expiry notification
-  const expiryDelay = expiry - now;
+function iParkHere() {
+  const r = state.result;
+  if (!r) return;
+  const expiry = getExpiryFromMeter(r.meter_hours);
+  state.parkedAt = new Date().toISOString();
+  state.parkedExpiry = expiry.toISOString();
+  saveState();
+  requestNotificationPermission(expiry, r.on_street || 'your spot');
+  state.screen = 'parked';
+  render();
+}
 
-  if (thirtyMinDelay > 0) {
-    setTimeout(() => {
-      new Notification('🚗 TOWED — Move Your Car', {
-        body: `Meter expires in 30 minutes on ${street}. Move now to avoid a ticket!`,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        requireInteraction: true
-      });
-    }, thirtyMinDelay);
+function goNav(id) {
+  if (id === 'check') state.screen = 'home';
+  else if (id === 'map') state.screen = 'map';
+  else if (id === 'parked') state.screen = 'parked';
+  else if (id === 'account') state.screen = 'account';
+  render();
+}
+
+function goHome() {
+  if (!state.user && state.usedFree >= 3) state.screen = 'paywall';
+  else if (state.user && state.credits <= 0) state.screen = 'paywall';
+  else state.screen = 'home';
+  render();
+}
+
+async function checkMeter() {
+  if (!state.user && state.usedFree >= 3) { state.screen = 'paywall'; render(); return; }
+  if (state.user && state.credits <= 0) { state.screen = 'paywall'; render(); return; }
+  const val = document.getElementById('meterInput').value.trim();
+  if (!val) return;
+  document.getElementById('meter-error').textContent = '';
+  document.getElementById('root').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif">Checking NYC parking rules…</div>';
+  try {
+    const res = await fetch(API + '?meter_number=' + encodeURIComponent(val) + '&$limit=1');
+    const data = await res.json();
+    if (data && data.length > 0 && data[0].meter_number) {
+      const meter = data[0];
+      const parsed = parseHours(meter.meter_hours);
+      state.result = Object.assign({}, meter, parsed);
+      state.lastMeter = val;
+      if (state.user) state.credits = Math.max(0, state.credits - 1);
+      else state.usedFree++;
+      saveState();
+      state.screen = 'result';
+      render();
+      if (!state.user && state.usedFree === 1) setTimeout(showSignupModal, 2000);
+    } else {
+      state.screen = 'home'; render();
+      document.getElementById('meter-error').textContent = 'Meter not found. Check the 7-digit number on the post.';
+      document.getElementById('meterInput').value = val;
+    }
+  } catch(e) {
+    state.screen = 'home'; render();
+    document.getElementById('meter-error').textContent = 'Connection error. Try again.';
   }
+}
 
-  if (tenMinDelay > 0) {
-    setTimeout(() => {
-      new Notification('⚠️ TOWED — 10 Minutes Left', {
-        body: `Meter expires in 10 minutes on ${street}. Move your car NOW!`,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        requireInteraction: true
-      });
-    }, tenMinDelay);
-  }
+function showSignupModal() {
+  const left = 3 - state.usedFree;
+  document.getElementById('modal-overlay').style.display = 'flex';
+  document.getElementById('modal-overlay').innerHTML =
+    '<div class="modal">' +
+    '<div class="modal-handle"></div>' +
+    '<div class="modal-title">Don\'t get caught like this again.</div>' +
+    '<div class="modal-sub">Sign up free and we\'ll ping you before cleaning, meter, or tow-risk windows hit your car.</div>' +
+    '<input class="modal-input" id="m-first" placeholder="First name"/>' +
+    '<input class="modal-input" id="m-last" placeholder="Last name"/>' +
+    '<input class="modal-input" id="m-email" type="email" placeholder="Email address"/>' +
+    '<input class="modal-input" id="m-password" type="password" placeholder="Create a password (min 6 characters)"/>' +
+    '<button class="modal-btn" onclick="signupFromModal()">Create free account →</button>' +
+    '<div id="modal-err" class="modal-error"></div>' +
+    '<button class="modal-skip" onclick="skipSignup()">Skip for now · ' + left + ' free check' + (left !== 1 ? 's' : '') + ' left</button>' +
+    '</div>';
+}
 
-  if (expiryDelay > 0) {
-    setTimeout(() => {
-      new Notification('🚨 TOWED — Meter Expired', {
-        body: `Your meter on ${street} has expired. Move immediately to avoid a tow!`,
-        icon: '/favicon.ico',
-        badge: '/favicon.ico',
-        requireInteraction: true
-      });
-    }, expiryDelay);
-  }
+function signupFromModal() {
+  const first = document.getElementById('m-first').value.trim();
+  const last = document.getElementById('m-last').value.trim();
+  const email = document.getElementById('m-email').value.trim();
+  const password = document.getElementById('m-password').value.trim();
+  const err = document.getElementById('modal-err');
+  if (!first) { err.textContent = 'Enter your first name.'; return; }
+  if (!last) { err.textContent = 'Enter your last name.'; return; }
+  if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
+  if (!password || password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
+  state.user = {firstName:first, lastName:last, email:email};
+  state.credits = 10;
+  saveState();
+  fetch(SUPABASE_URL + '/rest/v1/Sign%20ups', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':SUPABASE_KEY,
+      'Authorization':'Bearer ' + SUPABASE_KEY,
+      'Prefer':'return=minimal'
+    },
+    body:JSON.stringify({first_name:first, last_name:last, email:email, password:password, created_at:new Date().toISOString()})
+  }).catch(function(e) { console.log('Supabase:', e); });
+  document.getElementById('modal-overlay').style.display = 'none';
+  render();
 }
 
 function skipSignup() {
-  document.getElementById('modal-overlay').style.display='none';
+  document.getElementById('modal-overlay').style.display = 'none';
 }
 
 function signOut() {
-  state.user=null; state.credits=3; state.usedFree=0;
-  localStorage.removeItem('towed_v4');
-  state.screen='home'; render();
+  state.user = null; state.credits = 3; state.usedFree = 0;
+  localStorage.removeItem('towed_v5');
+  state.screen = 'home'; render();
 }
 
 loadState();
