@@ -76,7 +76,8 @@ input::placeholder{color:#444460;}
 
 <script>
 const API = 'https://data.cityofnewyork.us/resource/693u-uax6.json';
-
+const SUPABASE_URL = 'https://vilfzbozignkvszcoffd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_ec6gI0EAHKy_tTjHA1KM8g_3j7ENord';
 let state = {
   screen: 'home',
   user: null,
@@ -205,7 +206,17 @@ function paywallHTML() {
 }
 
 function showSignupModal() {
-  document.getElementById('modal-overlay').style.display = 'flex';
+  fetch(`${SUPABASE_URL}/rest/v1/signups`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Prefer': 'return=minimal'
+  },
+  body: JSON.stringify({ first_name: firstName, last_name: lastName, email: email, created_at: new Date().toISOString() })
+}).catch(e => console.log('Supabase error:', e));
+  document.getElementById('modal-overlay').style.display = 'none';
   document.getElementById('modal-overlay').innerHTML = `
     <div class="modal">
       <div class="modal-title">🎉 Nice Find!</div>
