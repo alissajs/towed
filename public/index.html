@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>TOWED — NYC Parking Survival</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#FFC83D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TOWED">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
@@ -11,595 +16,711 @@
 body{background:#0E1013;font-family:'Archivo','Helvetica Neue',sans-serif;color:#F2F2EE;min-height:100vh;max-width:480px;margin:0 auto;}
 .screen{min-height:100vh;display:flex;flex-direction:column;padding:0 0 80px 0;}
 .top-bar{display:flex;justify-content:space-between;align-items:center;padding:20px 20px 0;}
-.logo{font-weight:900;font-size:22px;letter-spacing:.08em;color:#FFC83D;}
+.logo{font-weight:900;font-size:22px;letter-spacing:.08em;color:#FFC83D;cursor:pointer;}
 .credits-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:7px 12px;border:1px solid #3A3D44;border-radius:999px;color:#C9CBD1;}
 .credits-pill.warn{border-color:#5A3A2E;color:#FFB199;}
 .content{flex:1;padding:20px;}
 .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#0B0D10;border-top:1px solid #22252B;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0 24px;}
 .nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#8B8F98;cursor:pointer;padding:6px 0;border:none;background:none;}
 .nav-item.active{color:#FFC83D;}
-.nav-item svg{width:22px;height:22px;}
-.hero-label{font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em;color:#FFC83D;margin-bottom:14px;}
-.hero-h1{font-weight:900;font-size:clamp(38px,9vw,64px);line-height:.95;letter-spacing:-.02em;margin-bottom:14px;}
-.hero-sub{font-size:16px;line-height:1.5;color:#B9BCC3;margin-bottom:24px;}
-.lookup-box{background:#181B20;border-radius:20px;padding:20px;margin-bottom:14px;}
-.lookup-label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:#8B8F98;margin-bottom:10px;}
-input{width:100%;background:#0E1013;border:1.5px solid #3A3D44;border-radius:12px;padding:14px;color:#F2F2EE;font-family:'Archivo',sans-serif;font-size:16px;outline:none;transition:border-color .2s;}
+.nav-item svg{width:20px;height:20px;}
+input{width:100%;background:#0E1013;border:1.5px solid #3A3D44;border-radius:12px;padding:14px;color:#F2F2EE;font-family:'Archivo',sans-serif;font-size:16px;outline:none;transition:border-color .2s;margin-bottom:10px;}
 input:focus{border-color:#FFC83D;}
 input::placeholder{color:#3A3D44;}
-.check-btn{width:100%;height:54px;margin-top:10px;background:#FFC83D;border:none;border-radius:14px;color:#0E1013;font-family:'Archivo',sans-serif;font-weight:900;font-size:16px;cursor:pointer;}
-.error-msg{color:#FF6B3D;font-size:12px;margin-top:8px;font-family:'IBM Plex Mono',monospace;}
-.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:28px;}
-.stat{background:#181B20;border-radius:14px;padding:14px 10px;text-align:center;}
+.btn{width:100%;height:54px;background:#FFC83D;border:none;border-radius:14px;color:#0E1013;font-family:'Archivo',sans-serif;font-weight:900;font-size:16px;cursor:pointer;margin-bottom:8px;}
+.btn-ghost{background:#181B20;color:#C9CBD1;}
+.btn-danger{background:#FF6B3D;color:#fff;}
+.btn-green{background:#3DDC97;color:#08130D;}
+.btn-dark{background:#121418;color:#F4F3EE;}
+.error-msg{color:#FF6B3D;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+.card{background:#181B20;border-radius:16px;padding:20px;margin-bottom:12px;}
+.card-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8B8F98;margin-bottom:10px;text-transform:uppercase;}
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;}
+.stat{background:#181B20;border-radius:12px;padding:12px 8px;text-align:center;}
 .stat-num{font-weight:900;font-size:20px;color:#FFC83D;}
-.stat-lbl{font-size:10px;color:#8B8F98;margin-top:3px;line-height:1.3;}
-.how-title{font-weight:900;font-size:26px;margin-bottom:16px;}
-.step{background:#181B20;border-radius:14px;padding:18px;margin-bottom:8px;display:flex;gap:14px;}
-.step-num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;color:#FFC83D;flex-shrink:0;padding-top:2px;}
-.step-title{font-weight:800;font-size:16px;margin-bottom:3px;}
-.step-desc{font-size:13px;color:#B9BCC3;line-height:1.4;}
-.cta-banner{background:#FFC83D;border-radius:22px;padding:28px 20px;text-align:center;margin:24px 0;}
-.cta-title{font-weight:900;font-size:26px;color:#0E1013;margin-bottom:6px;line-height:1.1;}
-.cta-sub{font-size:14px;color:#5A4800;margin-bottom:18px;}
-.cta-btn{height:52px;background:#0E1013;color:#F2F2EE;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;width:100%;cursor:pointer;}
-.result-ring-wrap{display:flex;align-items:center;justify-content:center;padding:32px 0 20px;}
-.ring-outer{width:280px;height:280px;border-radius:50%;border:1px solid #1F2A25;display:flex;align-items:center;justify-content:center;}
-.ring-mid{width:220px;height:220px;border-radius:50%;border:1px solid #23372D;display:flex;align-items:center;justify-content:center;}
-.ring-inner-safe{width:170px;height:170px;border-radius:50%;background:#3DDC97;box-shadow:0 0 80px rgba(61,220,151,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#08130D;}
-.ring-inner-danger{width:170px;height:170px;border-radius:50%;background:#FF6B3D;box-shadow:0 0 80px rgba(255,107,61,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1A0700;}
-.ring-word{font-weight:900;font-size:42px;line-height:1;}
-.ring-sub{font-weight:600;font-size:13px;margin-top:4px;}
-.result-headline{font-weight:900;font-size:22px;margin-bottom:4px;}
-.result-detail{font-size:14px;color:#B9BCC3;margin-bottom:16px;}
-.meter-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8B8F98;background:#181B20;padding:4px 10px;border-radius:8px;display:inline-block;margin-bottom:16px;}
-.info-row{background:#181B20;border-radius:12px;padding:12px 14px;margin-bottom:6px;display:flex;gap:12px;align-items:flex-start;}
-.info-icon{font-size:16px;flex-shrink:0;}
-.info-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#8B8F98;letter-spacing:.05em;text-transform:uppercase;}
-.info-val{font-size:13px;font-weight:600;color:#F2F2EE;margin-top:2px;}
-.action-btn{width:100%;height:54px;border-radius:14px;border:none;font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px;}
-.action-safe{background:#3DDC97;color:#08130D;}
-.action-danger{background:#FF6B3D;color:#F2F2EE;}
-.action-ghost{background:#181B20;color:#C9CBD1;}
-.timer-wrap{display:flex;align-items:center;justify-content:center;padding:16px 0 24px;position:relative;}
-.timer-ring{position:relative;width:260px;height:260px;}
+.stat-lbl{font-size:9px;color:#8B8F98;margin-top:2px;}
+.step{background:#181B20;border-radius:12px;padding:16px;margin-bottom:8px;display:flex;gap:12px;}
+.step-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#FFC83D;flex-shrink:0;padding-top:2px;font-weight:600;}
+.step-title{font-weight:800;font-size:15px;margin-bottom:3px;}
+.step-desc{font-size:12px;color:#B9BCC3;line-height:1.4;}
+.cta-banner{background:#FFC83D;border-radius:20px;padding:24px 20px;text-align:center;margin:20px 0;}
+.cta-title{font-weight:900;font-size:24px;color:#0E1013;margin-bottom:6px;line-height:1.1;}
+.cta-sub{font-size:13px;color:#5A4800;margin-bottom:16px;}
+.ring-wrap{display:flex;align-items:center;justify-content:center;padding:28px 0 18px;}
+.ring-outer{width:260px;height:260px;border-radius:50%;border:1px solid #1F2A25;display:flex;align-items:center;justify-content:center;}
+.ring-mid{width:200px;height:200px;border-radius:50%;border:1px solid #23372D;display:flex;align-items:center;justify-content:center;}
+.ring-safe{width:158px;height:158px;border-radius:50%;background:#3DDC97;box-shadow:0 0 70px rgba(61,220,151,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#08130D;}
+.ring-danger{width:158px;height:158px;border-radius:50%;background:#FF6B3D;box-shadow:0 0 70px rgba(255,107,61,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#1A0700;}
+.ring-word{font-weight:900;font-size:38px;line-height:1;}
+.ring-sub{font-weight:600;font-size:12px;margin-top:3px;}
+.info-row{background:#181B20;border-radius:10px;padding:11px 13px;margin-bottom:6px;display:flex;gap:10px;align-items:flex-start;}
+.info-icon{font-size:15px;flex-shrink:0;}
+.info-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#8B8F98;text-transform:uppercase;letter-spacing:.05em;}
+.info-val{font-size:12px;font-weight:600;color:#F2F2EE;margin-top:2px;}
+.timer-wrap{display:flex;align-items:center;justify-content:center;padding:12px 0 20px;position:relative;}
+.timer-ring{position:relative;width:240px;height:240px;}
 .timer-ring svg{position:absolute;top:0;left:0;}
 .timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.timer-time{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:44px;letter-spacing:-.02em;}
-.timer-lbl{font-size:13px;color:#A7AAB2;margin-top:4px;}
-.timer-row{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:14px;background:#181B20;font-size:14px;margin-bottom:8px;}
-.timer-row-lbl{color:#C9CBD1;}
-.timer-row-val{font-weight:800;}
-.timer-row-val.accent{color:#FFC83D;}
-.walk-btn{width:100%;height:56px;border-radius:16px;border:none;background:#FFC83D;color:#0E1013;font-family:'Archivo',sans-serif;font-weight:900;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:10px;}
-.moved-btn{width:100%;height:50px;border-radius:16px;border:1px solid #3A3D44;background:none;color:#F2F2EE;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
-.map-container{position:relative;background:#0D1117;border-radius:20px;overflow:hidden;height:300px;margin-bottom:16px;}
-.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:32px 32px;}
-.map-street-h{position:absolute;left:0;right:0;height:6px;background:rgba(255,255,255,.05);}
-.map-street-v{position:absolute;top:0;bottom:0;width:6px;background:rgba(255,255,255,.05);}
-.map-user{position:absolute;width:14px;height:14px;border-radius:50%;background:#4DA3FF;border:3px solid #fff;box-shadow:0 0 0 5px rgba(77,163,255,.2);}
-.map-legend{display:flex;gap:12px;margin-bottom:16px;}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:#B9BCC3;}
-.legend-dot{width:10px;height:10px;border-radius:3px;}
-.risk-list-title{font-weight:900;font-size:18px;margin-bottom:12px;}
-.risk-item{background:#181B20;border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;}
-.risk-item:hover{background:#1E2127;}
-.risk-badge{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.risk-badge.high{background:rgba(255,107,61,.15);}
-.risk-badge.low{background:rgba(61,220,151,.12);}
-.risk-street{font-size:13px;font-weight:700;color:#F2F2EE;}
-.risk-detail{font-size:11px;color:#8B8F98;margin-top:2px;}
-.account-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#FFC83D,#FF6B3D);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;color:#0E1013;margin-bottom:16px;}
-.account-name{font-weight:900;font-size:26px;margin-bottom:4px;}
-.account-email{font-size:14px;color:#8B8F98;margin-bottom:24px;}
-.account-card{background:#181B20;border-radius:16px;padding:20px;margin-bottom:12px;}
-.account-card-title{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8B8F98;margin-bottom:12px;text-transform:uppercase;}
-.account-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #22252B;font-size:14px;}
-.account-stat:last-child{border-bottom:none;}
-.account-stat-lbl{color:#C9CBD1;}
-.account-stat-val{font-weight:700;}
-.upgrade-btn{width:100%;height:52px;background:#FFC83D;color:#0E1013;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:900;font-size:15px;cursor:pointer;margin-bottom:8px;}
-.signout-btn{width:100%;height:46px;background:none;border:1px solid #3A3D44;color:#8B8F98;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;}
-.overlay{position:fixed;inset:0;background:rgba(5,6,8,.85);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
-.modal{background:#F4F3EE;color:#121418;border-radius:28px 28px 0 0;padding:16px 24px 40px;width:100%;max-width:480px;}
-.modal-handle{width:44px;height:5px;border-radius:3px;background:#C7C6C0;margin:0 auto 20px;}
-.modal-title{font-weight:900;font-size:22px;line-height:1.1;margin-bottom:8px;}
-.modal-sub{font-size:14px;color:#4A4D55;line-height:1.4;margin-bottom:18px;}
-.modal-input{width:100%;background:#fff;border:1.5px solid #D4D3CC;border-radius:12px;padding:13px;color:#121418;font-family:'Archivo',sans-serif;font-size:15px;outline:none;margin-bottom:8px;}
+.timer-time{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:40px;letter-spacing:-.02em;}
+.timer-lbl{font-size:12px;color:#A7AAB2;margin-top:3px;}
+.t-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;background:#181B20;margin-bottom:7px;font-size:13px;}
+.t-lbl{color:#C9CBD1;}
+.t-val{font-weight:800;}
+.t-val.accent{color:#FFC83D;}
+.map-box{position:relative;background:#0D1117;border-radius:16px;overflow:hidden;height:280px;margin-bottom:14px;}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:30px 30px;}
+.map-sh{position:absolute;left:0;right:0;height:5px;background:rgba(255,255,255,.05);}
+.map-sv{position:absolute;top:0;bottom:0;width:5px;background:rgba(255,255,255,.05);}
+.map-user{position:absolute;width:13px;height:13px;border-radius:50%;background:#4DA3FF;border:2.5px solid #fff;box-shadow:0 0 0 5px rgba(77,163,255,.2);}
+.legend{display:flex;gap:12px;margin-bottom:14px;}
+.legend-i{display:flex;align-items:center;gap:5px;font-size:11px;color:#B9BCC3;}
+.legend-d{width:9px;height:9px;border-radius:2px;}
+.risk-item{background:#181B20;border-radius:10px;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.risk-item:active{background:#1E2127;}
+.risk-badge{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ava{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#FFC83D,#FF6B3D);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:#0E1013;margin-bottom:14px;}
+.a-stat{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #22252B;font-size:13px;}
+.a-stat:last-child{border-bottom:none;}
+.overlay{position:fixed;inset:0;background:rgba(5,6,8,.88);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.modal{background:#F4F3EE;color:#121418;border-radius:24px 24px 0 0;padding:14px 22px 36px;width:100%;max-width:480px;}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:#C7C6C0;margin:0 auto 18px;}
+.modal-title{font-weight:900;font-size:21px;line-height:1.1;margin-bottom:7px;}
+.modal-sub{font-size:13px;color:#4A4D55;line-height:1.4;margin-bottom:16px;}
+.modal-input{width:100%;background:#fff;border:1.5px solid #D4D3CC;border-radius:11px;padding:12px;color:#121418;font-family:'Archivo',sans-serif;font-size:15px;outline:none;margin-bottom:8px;}
 .modal-input:focus{border-color:#FFC83D;}
-.modal-btn{width:100%;height:52px;background:#121418;color:#F4F3EE;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px;}
-.modal-skip{background:none;border:none;color:#8B8F98;font-size:13px;font-weight:700;cursor:pointer;width:100%;padding:8px;text-align:center;}
-.modal-error{color:#FF6B3D;font-size:12px;margin-top:4px;text-align:center;}
-.paywall-num{font-weight:900;font-size:56px;color:#FFC83D;text-align:center;margin-bottom:8px;}
-.paywall-title{font-weight:900;font-size:28px;text-align:center;margin-bottom:12px;}
-.paywall-sub{color:#B9BCC3;font-size:15px;line-height:1.5;text-align:center;margin-bottom:28px;}
-.price-card{background:#181B20;border-radius:20px;padding:24px;margin-bottom:20px;text-align:center;}
-.price-num{font-weight:900;font-size:42px;}
-.price-lbl{color:#8B8F98;font-size:13px;margin-top:4px;}
-footer{border-top:1px solid #22252B;padding:24px;text-align:center;font-size:13px;color:#8B8F98;margin-top:20px;}
+.modal-skip{background:none;border:none;color:#8B8F98;font-size:12px;font-weight:700;cursor:pointer;width:100%;padding:8px;text-align:center;}
+.modal-err{color:#FF6B3D;font-size:11px;margin-top:4px;text-align:center;}
+.cookie-bar{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;background:#181B20;border:1px solid #3A3D44;border-radius:14px;padding:14px 16px;z-index:90;display:flex;gap:12px;align-items:flex-start;}
+.cookie-text{font-size:11px;color:#B9BCC3;line-height:1.5;flex:1;}
+.cookie-btn{background:#FFC83D;border:none;border-radius:8px;padding:8px 14px;color:#0E1013;font-weight:800;font-size:12px;cursor:pointer;flex-shrink:0;}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;background:#181B20;border:1px solid #3A3D44;border-radius:12px;color:#F2F2EE;font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;cursor:pointer;margin-bottom:8px;}
+.history-item{background:#181B20;border-radius:10px;padding:11px 13px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.history-item:active{background:#1E2127;}
+.saved-item{background:#181B20;border-radius:10px;padding:11px 13px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.prose{font-size:14px;color:#B9BCC3;line-height:1.7;margin-bottom:14px;}
+.prose h3{font-size:16px;font-weight:800;color:#F2F2EE;margin:20px 0 8px;}
+.prose a{color:#FFC83D;}
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:#8B8F98;font-size:13px;font-weight:700;cursor:pointer;padding:0;margin-bottom:20px;}
+.pwa-banner{background:#181B20;border:1px solid rgba(255,200,61,.3);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:center;}
+.pwa-icon{font-size:28px;flex-shrink:0;}
+.counter-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.2);border-radius:8px;padding:6px 12px;font-size:12px;color:#FFC83D;font-weight:700;margin-bottom:16px;}
+footer{border-top:1px solid #22252B;padding:20px;text-align:center;font-size:12px;color:#8B8F98;line-height:1.8;}
+footer a{color:#FFC83D;text-decoration:none;}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <div id="modal-overlay" style="display:none"></div>
+<div id="cookie-bar" style="display:none"></div>
 
 <script>
 const API = 'https://data.cityofnewyork.us/resource/693u-uax6.json';
-const SUPABASE_URL = 'https://vllfzbozlgnkvszcoffd.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbGZ6Ym96bGdua3ZzemNvZmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MTc5MzksImV4cCI6MjEwNzA5MzkzOX0.VAsQ1-qgFq5TrLxq59sM_R-3ow6DsRFyWUx2UPS_dTQ';
-const STRIPE_LINK = 'https://buy.stripe.com/test_6oUaEYcdT08nfyI9t3dIA00';
+const SB_URL = 'https://vllfzbozlgnkvszcoffd.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbGZ6Ym96bGdua3ZzemNvZmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MTc5MzksImV4cCI6MjEwNzA5MzkzOX0.VAsQ1-qgFq5TrLxq59sM_R-3ow6DsRFyWUx2UPS_dTQ';
+const STRIPE = 'https://buy.stripe.com/test_6oUaEYcdT08nfyI9t3dIA00';
 
 let state = {
-  screen:'home', user:null, credits:3, usedFree:0,
-  result:null, lastMeter:'', parkedAt:null, parkedExpiry:null, timerInterval:null
+  screen:'home', user:null, credits:10, usedFree:0,
+  result:null, lastMeter:'', parkedAt:null, parkedExpiry:null,
+  timerInterval:null, deviceId:null, history:[], saved:[], totalChecks:0
 };
 
 function loadState() {
   try {
-    const s = JSON.parse(localStorage.getItem('towed_v5') || '{}');
+    let did = localStorage.getItem('towed_did');
+    if (!did) { did = 'dev_' + Math.random().toString(36).substr(2,9) + Date.now().toString(36); localStorage.setItem('towed_did', did); }
+    state.deviceId = did;
+    const s = JSON.parse(localStorage.getItem('towed_v6') || '{}');
     if (s.user) state = {...state, ...s, screen:'home', result:null};
+    const dc = parseInt(localStorage.getItem('towed_dc') || '0');
+    if (!state.user && dc >= 3) state.usedFree = 3;
+    state.totalChecks = parseInt(localStorage.getItem('towed_tc') || '1247');
   } catch(e) {}
 }
 
 function saveState() {
   try {
-    localStorage.setItem('towed_v5', JSON.stringify({
+    localStorage.setItem('towed_v6', JSON.stringify({
       user:state.user, credits:state.credits, usedFree:state.usedFree,
-      parkedAt:state.parkedAt, parkedExpiry:state.parkedExpiry
+      parkedAt:state.parkedAt, parkedExpiry:state.parkedExpiry,
+      history:state.history, saved:state.saved
     }));
   } catch(e) {}
 }
 
 function parseHours(h) {
   if (!h) return {safe:true, info:'No restrictions found'};
-  const now = new Date(), day = now.getDay(), hour = now.getHours();
-  const str = h.toUpperCase();
-  const m = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
+  const now=new Date(), day=now.getDay(), hour=now.getHours(), str=h.toUpperCase();
+  const m=str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
   if (!m) return {safe:true, info:h};
-  const start = parseInt(m[1]), end = parseInt(m[3]);
-  if (str.includes('MON-SAT') && day === 0) return {safe:true, info:'No restrictions on Sunday'};
-  if (str.includes('MON-FRI') && (day === 0 || day === 6)) return {safe:true, info:'No restrictions on weekends'};
-  if (hour >= start && hour < end) return {safe:false, info:'Restricted now · until ' + m[3] + ':' + m[4]};
-  return {safe:true, info:'Safe now · restrictions ' + m[1] + ':' + m[2] + '–' + m[3] + ':' + m[4]};
+  const start=parseInt(m[1]), end=parseInt(m[3]);
+  if (str.includes('MON-SAT')&&day===0) return {safe:true, info:'No restrictions on Sunday'};
+  if (str.includes('MON-FRI')&&(day===0||day===6)) return {safe:true, info:'No restrictions on weekends'};
+  if (hour>=start&&hour<end) return {safe:false, info:'Restricted now · until '+m[3]+':'+m[4]};
+  return {safe:true, info:'Safe now · restrictions '+m[1]+':'+m[2]+'–'+m[3]+':'+m[4]};
 }
 
-function getExpiryFromMeter(meterHours) {
-  const now = new Date();
-  if (!meterHours) {
-    const d = new Date(now.getTime() + 2 * 60 * 60 * 1000);
-    return d;
-  }
-  const str = meterHours.toUpperCase();
-  const m = str.match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
+function getExpiry(meterHours) {
+  const now=new Date();
+  if (!meterHours) return new Date(now.getTime()+2*3600000);
+  const m=meterHours.toUpperCase().match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
   if (m) {
-    const expiry = new Date();
-    expiry.setHours(parseInt(m[3]), parseInt(m[4]), 0, 0);
-    if (expiry <= now) expiry.setTime(now.getTime() + 2 * 60 * 60 * 1000);
-    return expiry;
+    const e=new Date(); e.setHours(parseInt(m[3]),parseInt(m[4]),0,0);
+    if (e<=now) return new Date(now.getTime()+2*3600000);
+    return e;
   }
-  return new Date(now.getTime() + 2 * 60 * 60 * 1000);
+  return new Date(now.getTime()+2*3600000);
 }
 
-function creditsDisplay() {
-  if (state.user) {
-    const c = state.credits;
-    return '<div class="credits-pill ' + (c <= 1 ? 'warn' : '') + '">' + c + ' check' + (c !== 1 ? 's' : '') + ' left</div>';
-  }
-  if (state.usedFree > 0) {
-    const left = 3 - state.usedFree;
-    return '<div class="credits-pill ' + (left <= 1 ? 'warn' : '') + '">' + left + ' free left</div>';
-  }
-  return '<div class="credits-pill">3 free checks</div>';
+function cp() {
+  if (state.user) { const c=state.credits; return '<div class="credits-pill'+(c<=2?' warn':'')+'">'+c+' check'+(c!==1?'s':'')+' left</div>'; }
+  if (state.usedFree>0) { const l=3-state.usedFree; return '<div class="credits-pill'+(l<=1?' warn':'')+'">'+l+' free left</div>'; }
+  return '<div class="credits-pill">Free to use</div>';
 }
 
-function navHTML(active) {
-  const items = [
-    {id:'check', label:'Check', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>'},
-    {id:'map', label:'Map', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>'},
-    {id:'parked', label:'My Car', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 2-1.4h7a2 2 0 0 1 2 1.4L19 16"/><rect x="4" y="16" width="16" height="3" rx="1"/></svg>'},
-    {id:'account', label:'Account', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'},
+function nav(a) {
+  const its=[
+    {id:'check',l:'Check',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>'},
+    {id:'map',l:'Map',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>'},
+    {id:'parked',l:'My Car',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16l1.5-5a2 2 0 0 1 2-1.4h7a2 2 0 0 1 2 1.4L19 16"/><rect x="4" y="16" width="16" height="3" rx="1"/></svg>'},
+    {id:'account',l:'Account',s:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'},
   ];
-  return '<nav class="bottom-nav">' + items.map(function(i) {
-    return '<button class="nav-item ' + (active === i.id ? 'active' : '') + '" onclick="goNav(\'' + i.id + '\')">' + i.svg + i.label + '</button>';
-  }).join('') + '</nav>';
+  return '<nav class="bottom-nav">'+its.map(function(i){ return '<button class="nav-item'+(a===i.id?' active':'')+'" onclick="goNav(\''+i.id+'\')">'+i.s+i.l+'</button>'; }).join('')+'</nav>';
 }
 
 function render() {
-  const root = document.getElementById('root');
-  if (state.screen === 'home') root.innerHTML = homeHTML();
-  else if (state.screen === 'result') root.innerHTML = resultHTML();
-  else if (state.screen === 'paywall') root.innerHTML = paywallHTML();
-  else if (state.screen === 'map') root.innerHTML = mapHTML();
-  else if (state.screen === 'parked') root.innerHTML = parkedHTML();
-  else if (state.screen === 'account') root.innerHTML = accountHTML();
-  if (state.screen === 'parked') startTimer();
-  if (state.screen === 'map') initMap();
+  const root=document.getElementById('root');
+  const s=state.screen;
+  if (s==='home') root.innerHTML=homeHTML();
+  else if (s==='result') root.innerHTML=resultHTML();
+  else if (s==='paywall') root.innerHTML=paywallHTML();
+  else if (s==='map') root.innerHTML=mapHTML();
+  else if (s==='parked') root.innerHTML=parkedHTML();
+  else if (s==='account') root.innerHTML=accountHTML();
+  else if (s==='privacy') root.innerHTML=legalHTML('privacy');
+  else if (s==='terms') root.innerHTML=legalHTML('terms');
+  else if (s==='faq') root.innerHTML=faqHTML();
+  else if (s==='about') root.innerHTML=aboutHTML();
+  if (s==='parked') startTimer();
+  if (s==='map') setTimeout(initMap, 100);
+  showCookieBanner();
+  showPWAPrompt();
 }
 
 function homeHTML() {
-  return '<div class="screen">' +
-    '<div class="top-bar"><div class="logo">TOWED</div>' + creditsDisplay() + '</div>' +
-    '<div class="content">' +
-    '<div style="height:16px"></div>' +
-    '<div class="hero-label">NYC PARKING, DECODED</div>' +
-    '<h1 class="hero-h1">Don\'t get towed<br>in New York.</h1>' +
-    '<p class="hero-sub">Type your meter number. We check NYC rules right now and tell you: safe or move.</p>' +
-    '<div class="lookup-box">' +
-    '<div class="lookup-label">METER LOOKUP</div>' +
-    '<input id="meterInput" type="number" placeholder="7-digit meter number" onkeydown="if(event.key===\'Enter\')checkMeter()"/>' +
-    '<button class="check-btn" onclick="checkMeter()">Check my spot →</button>' +
-    '<div id="meter-error" class="error-msg"></div>' +
-    '</div>' +
-    '<div class="stats">' +
-    '<div class="stat"><div class="stat-num">15K+</div><div class="stat-lbl">NYC meters</div></div>' +
-    '<div class="stat"><div class="stat-num">$115</div><div class="stat-lbl">avg ticket</div></div>' +
-    '<div class="stat"><div class="stat-num">$300+</div><div class="stat-lbl">avg tow fee</div></div>' +
-    '</div>' +
-    '<div class="how-title">Three taps. Zero tickets.</div>' +
-    '<div class="step"><div class="step-num">01</div><div><div class="step-title">Find your meter number</div><div class="step-desc">It\'s on the sticker on the post next to your car. 7 digits.</div></div></div>' +
-    '<div class="step"><div class="step-num">02</div><div><div class="step-title">Get one clear answer</div><div class="step-desc">Safe or move now — with the reason in plain English.</div></div></div>' +
-    '<div class="step"><div class="step-num">03</div><div><div class="step-title">We watch the clock</div><div class="step-desc">Sign up and we alert you before cleaning or meter expires.</div></div></div>' +
-    '<div class="cta-banner">' +
-    '<div class="cta-title">Cheaper than one ticket.</div>' +
-    '<div class="cta-sub">3 free checks · then $3.99/mo · 7-day free trial</div>' +
-    '<button class="cta-btn" onclick="showSignupModal()">Create free account</button>' +
-    '</div>' +
-    '<footer>© Towed, LLC · towed.nyc<br><span style="font-size:11px">Uses NYC Open Data. Always double-check posted signs.</span></footer>' +
-    '</div>' +
-    navHTML('check') + '</div>';
+  const hist = state.history.length > 0 ?
+    '<div style="margin-bottom:20px"><div class="card-label" style="margin-bottom:10px">RECENT CHECKS</div>' +
+    state.history.slice(0,3).map(function(h) {
+      return '<div class="history-item" onclick="quickCheck(\''+h.meter+'\')">'+
+        '<div style="font-size:16px">'+(h.safe?'✅':'🚨')+'</div>'+
+        '<div style="flex:1"><div style="font-size:12px;font-weight:700">'+h.street+'</div>'+
+        '<div style="font-size:10px;color:#8B8F98">Meter #'+h.meter+'</div></div>'+
+        '<div style="font-size:10px;color:'+(h.safe?'#3DDC97':'#FF6B3D')+';font-weight:700">'+(h.safe?'SAFE':'RISK')+'</div></div>';
+    }).join('') + '</div>' : '';
+
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo" onclick="goNav(\'check\')">TOWED</div>'+cp()+'</div>'+
+    '<div class="content">'+
+    '<div style="height:14px"></div>'+
+    '<div class="counter-badge">🚗 '+state.totalChecks.toLocaleString()+' meters checked today</div>'+
+    '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:.1em;color:#FFC83D;margin-bottom:12px">NYC PARKING, DECODED</div>'+
+    '<h1 style="font-weight:900;font-size:clamp(36px,9vw,60px);line-height:.95;letter-spacing:-.02em;margin-bottom:12px">Don\'t get towed<br>in New York.</h1>'+
+    '<p style="font-size:15px;line-height:1.5;color:#B9BCC3;margin-bottom:20px">Type your meter number. We check NYC rules right now and tell you: safe or move.</p>'+
+    '<div class="card">'+
+    '<div class="card-label">METER LOOKUP</div>'+
+    '<input id="meterInput" type="number" placeholder="7-digit meter number" onkeydown="if(event.key===\'Enter\')checkMeter()"/>'+
+    '<button class="btn" onclick="checkMeter()">Check my spot →</button>'+
+    '<div id="meter-error" class="error-msg"></div>'+
+    '</div>'+
+    hist+
+    '<div class="stat-row">'+
+    '<div class="stat"><div class="stat-num">15K+</div><div class="stat-lbl">NYC meters</div></div>'+
+    '<div class="stat"><div class="stat-num">$115</div><div class="stat-lbl">avg ticket</div></div>'+
+    '<div class="stat"><div class="stat-num">$300+</div><div class="stat-lbl">avg tow fee</div></div>'+
+    '</div>'+
+    '<div style="font-weight:900;font-size:24px;margin-bottom:14px">Three taps. Zero tickets.</div>'+
+    '<div class="step"><div class="step-num">01</div><div><div class="step-title">Find your meter number</div><div class="step-desc">7-digit number on the sticker on the post next to your car.</div></div></div>'+
+    '<div class="step"><div class="step-num">02</div><div><div class="step-title">Get one clear answer</div><div class="step-desc">Safe or move now — with the reason in plain English.</div></div></div>'+
+    '<div class="step"><div class="step-num">03</div><div><div class="step-title">We watch the clock</div><div class="step-desc">Sign up and we alert you before cleaning or meter expires.</div></div></div>'+
+    '<div class="cta-banner">'+
+    '<div class="cta-title">Cheaper than one ticket.</div>'+
+    '<div class="cta-sub">Free to use · Premium $3.99/mo · 7-day trial</div>'+
+    '<button class="btn btn-dark" onclick="showSignupModal()">Create free account</button>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">'+
+    '<button onclick="goNav(\'faq\')" style="background:#181B20;border:1px solid #3A3D44;border-radius:12px;padding:12px;color:#B9BCC3;font-size:13px;font-weight:700;cursor:pointer">❓ FAQ</button>'+
+    '<button onclick="goNav(\'about\')" style="background:#181B20;border:1px solid #3A3D44;border-radius:12px;padding:12px;color:#B9BCC3;font-size:13px;font-weight:700;cursor:pointer">ℹ️ About</button>'+
+    '</div>'+
+    '<footer>© 2026 Towed, LLC · <a href="#" onclick="goNav(\'privacy\')">Privacy</a> · <a href="#" onclick="goNav(\'terms\')">Terms</a><br><span style="font-size:10px">Uses NYC Open Data. Always double-check posted signs.</span></footer>'+
+    '</div>'+nav('check')+'</div>';
 }
 
 function resultHTML() {
-  const r = state.result;
-  const safe = r.safe;
-  const rows = [
-    {icon:'📍', label:'Street', val:r.on_street || 'N/A'},
-    {icon:'🔀', label:'Between', val:(r.from_street || '') + ' & ' + (r.to_street || '')},
-    {icon:'🏙', label:'Borough', val:r.borough || 'N/A'},
-    {icon:'🕐', label:'Meter Hours', val:r.meter_hours || 'No restrictions listed'},
-    {icon:'📱', label:'Pay By Phone', val:r.pay_by_cell_number ? '#' + r.pay_by_cell_number : 'N/A'},
+  const r=state.result, safe=r.safe;
+  const rows=[
+    {icon:'📍',label:'Street',val:r.on_street||'N/A'},
+    {icon:'🔀',label:'Between',val:(r.from_street||'')+' & '+(r.to_street||'')},
+    {icon:'🏙',label:'Borough',val:r.borough||'N/A'},
+    {icon:'🕐',label:'Meter Hours',val:r.meter_hours||'No restrictions listed'},
+    {icon:'📱',label:'Pay By Phone',val:r.pay_by_cell_number?'#'+r.pay_by_cell_number:'N/A'},
   ];
-  return '<div class="screen">' +
-    '<div class="top-bar"><div class="logo">TOWED</div>' + creditsDisplay() + '</div>' +
-    '<div class="content">' +
-    '<div class="result-ring-wrap"><div class="ring-outer"><div class="ring-mid">' +
-    '<div class="' + (safe ? 'ring-inner-safe' : 'ring-inner-danger') + '">' +
-    '<div class="ring-word">' + (safe ? 'SAFE' : 'MOVE') + '</div>' +
-    '<div class="ring-sub">' + (safe ? 'to park here' : 'NOW') + '</div>' +
-    '</div></div></div></div>' +
-    '<div class="result-headline">' + (safe ? 'Good to go' : 'Tow risk: HIGH') + '</div>' +
-    '<div class="result-detail">' + r.info + '</div>' +
-    '<div class="meter-tag">METER #' + state.lastMeter + '</div>' +
-    rows.map(function(row) {
-      return '<div class="info-row"><div class="info-icon">' + row.icon + '</div><div><div class="info-label">' + row.label + '</div><div class="info-val">' + row.val + '</div></div></div>';
-    }).join('') +
-    (safe ? '<button class="action-btn action-safe" onclick="iParkHere()">I parked here ✓</button>' : '') +
-    '<button class="action-btn ' + (safe ? 'action-ghost' : 'action-danger') + '" onclick="goHome()">' + (safe ? '← Check another' : 'Find safe parking →') + '</button>' +
-    '</div>' + navHTML('check') + '</div>';
+  const shareText = 'Meter #'+state.lastMeter+' on '+r.on_street+', '+r.borough+' is '+(safe?'SAFE TO PARK':'DANGER - DO NOT PARK')+' right now. Check yours at towed.nyc';
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div>'+cp()+'</div>'+
+    '<div class="content">'+
+    '<div class="ring-wrap"><div class="ring-outer"><div class="ring-mid">'+
+    '<div class="'+(safe?'ring-safe':'ring-danger')+'">'+
+    '<div class="ring-word">'+(safe?'SAFE':'MOVE')+'</div>'+
+    '<div class="ring-sub">'+(safe?'to park here':'NOW')+'</div>'+
+    '</div></div></div></div>'+
+    '<div style="font-weight:900;font-size:20px;margin-bottom:4px">'+(safe?'Good to go':'Tow risk: HIGH')+'</div>'+
+    '<div style="font-size:13px;color:#B9BCC3;margin-bottom:12px">'+r.info+'</div>'+
+    '<div style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#8B8F98;background:#181B20;padding:4px 9px;border-radius:7px;display:inline-block;margin-bottom:14px">METER #'+state.lastMeter+'</div>'+
+    rows.map(function(row){ return '<div class="info-row"><div class="info-icon">'+row.icon+'</div><div><div class="info-label">'+row.label+'</div><div class="info-val">'+row.val+'</div></div></div>'; }).join('')+
+    (safe?'<button class="btn btn-green" onclick="iParkHere()">I parked here ✓</button>':'')+
+    '<button class="btn '+(safe?'btn-ghost':'btn-danger')+'" onclick="goHome()">'+(safe?'← Check another':'Find safe parking →')+'</button>'+
+    '<button class="share-btn" onclick="shareResult(\''+encodeURIComponent(shareText)+'\')">📤 Share this result</button>'+
+    (state.user?'<button class="share-btn" onclick="saveSpot()">⭐ Save this spot</button>':'')+
+    '</div>'+nav('check')+'</div>';
 }
 
 function parkedHTML() {
-  const expiry = state.parkedExpiry ? new Date(state.parkedExpiry) : null;
-  const expiryStr = expiry ? expiry.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--';
-  const street = (state.result && state.result.on_street) ? state.result.on_street : 'Your spot';
-  const cleaning = (state.result && state.result.meter_hours) ? state.result.meter_hours : 'Check posted signs';
-  return '<div class="screen">' +
-    '<div class="top-bar"><div style="font-weight:900;font-size:20px">Your car</div>' +
-    '<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#A7AAB2"><div style="width:8px;height:8px;border-radius:50%;background:#3DDC97"></div>Live alerts on</div></div>' +
-    '<div class="content">' +
-    '<div style="font-size:13px;color:#8B8F98;margin-bottom:20px;font-family:IBM Plex Mono,monospace">' + street + '</div>' +
-    '<div class="timer-wrap"><div class="timer-ring">' +
-    '<svg width="260" height="260" viewBox="0 0 260 260">' +
-    '<circle cx="130" cy="130" r="115" fill="none" stroke="#1E2127" stroke-width="14"/>' +
-    '<circle cx="130" cy="130" r="115" fill="none" stroke="#FFC83D" stroke-width="14" stroke-linecap="round" stroke-dasharray="723" stroke-dashoffset="0" transform="rotate(-90 130 130)" id="timer-arc"/>' +
-    '</svg>' +
-    '<div class="timer-center"><div class="timer-time" id="timer-display">--:--</div><div class="timer-lbl">left on meter</div></div>' +
-    '</div></div>' +
-    '<div class="timer-row"><span class="timer-row-lbl">Meter expires</span><span class="timer-row-val">' + expiryStr + '</span></div>' +
-    '<div class="timer-row"><span class="timer-row-lbl">Hours</span><span class="timer-row-val">' + cleaning + '</span></div>' +
-    '<div class="timer-row"><span class="timer-row-lbl">Alerts</span><span class="timer-row-val accent">30 min & 10 min before ✓</span></div>' +
-    '<div style="height:16px"></div>' +
-    '<button class="walk-btn">📍 Walk me back to my car</button>' +
-    '<button class="moved-btn" onclick="goHome()">I moved my car</button>' +
-    '</div>' + navHTML('parked') + '</div>';
+  const expiry=state.parkedExpiry?new Date(state.parkedExpiry):null;
+  const expiryStr=expiry?expiry.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'--:--';
+  const street=(state.result&&state.result.on_street)?state.result.on_street:'Your spot';
+  const cleaning=(state.result&&state.result.meter_hours)?state.result.meter_hours:'Check posted signs';
+  return '<div class="screen">'+
+    '<div class="top-bar"><div style="font-weight:900;font-size:19px">Your car</div>'+
+    '<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:#A7AAB2"><div style="width:7px;height:7px;border-radius:50%;background:#3DDC97"></div>Live alerts on</div></div>'+
+    '<div class="content">'+
+    '<div style="font-size:12px;color:#8B8F98;margin-bottom:18px;font-family:IBM Plex Mono,monospace">'+street+'</div>'+
+    '<div class="timer-wrap"><div class="timer-ring">'+
+    '<svg width="240" height="240" viewBox="0 0 240 240">'+
+    '<circle cx="120" cy="120" r="106" fill="none" stroke="#1E2127" stroke-width="13"/>'+
+    '<circle cx="120" cy="120" r="106" fill="none" stroke="#FFC83D" stroke-width="13" stroke-linecap="round" stroke-dasharray="666" stroke-dashoffset="0" transform="rotate(-90 120 120)" id="timer-arc"/>'+
+    '</svg>'+
+    '<div class="timer-center"><div class="timer-time" id="timer-display">--:--</div><div class="timer-lbl">left on meter</div></div>'+
+    '</div></div>'+
+    '<div class="t-row"><span class="t-lbl">Meter expires</span><span class="t-val">'+expiryStr+'</span></div>'+
+    '<div class="t-row"><span class="t-lbl">Hours</span><span class="t-val">'+cleaning+'</span></div>'+
+    '<div class="t-row"><span class="t-lbl">Alerts</span><span class="t-val accent">30 & 10 min before ✓</span></div>'+
+    '<div style="height:14px"></div>'+
+    '<button class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px">📍 Walk me back to my car</button>'+
+    '<button class="btn btn-ghost" onclick="goHome()">I moved my car</button>'+
+    '</div>'+nav('parked')+'</div>';
 }
 
 function mapHTML() {
-  return '<div class="screen">' +
-    '<div class="top-bar"><div class="logo">TOWED</div><div style="font-size:11px;color:#8B8F98;font-family:IBM Plex Mono,monospace">TOW RISK MAP</div></div>' +
-    '<div class="content">' +
-    '<div id="map-status" style="font-family:IBM Plex Mono,monospace;font-size:11px;color:#8B8F98;margin-bottom:12px">📍 Getting your location...</div>' +
-    '<div class="map-container">' +
-    '<div class="map-grid"></div>' +
-    '<div class="map-street-h" style="top:25%"></div>' +
-    '<div class="map-street-h" style="top:50%"></div>' +
-    '<div class="map-street-h" style="top:75%"></div>' +
-    '<div class="map-street-v" style="left:25%"></div>' +
-    '<div class="map-street-v" style="left:50%"></div>' +
-    '<div class="map-street-v" style="left:75%"></div>' +
-    '<div class="map-user" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>' +
-    '<div style="position:absolute;top:12px;left:12px;right:12px;background:rgba(13,17,23,.95);border:1px solid #3A3D44;border-radius:10px;padding:9px 12px;font-size:11px;color:#8B8F98;font-family:IBM Plex Mono,monospace">🔍 Meters near you</div>' +
-    '</div>' +
-    '<div class="map-legend">' +
-    '<div class="legend-item"><div class="legend-dot" style="background:#FF6B3D"></div>High risk</div>' +
-    '<div class="legend-item"><div class="legend-dot" style="background:#3DDC97"></div>Safe</div>' +
-    '</div>' +
-    '<div class="risk-list-title">Meters Near You</div>' +
-    '<div id="nearby-list"><div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Loading nearby meters...</div></div>' +
-    '</div>' + navHTML('map') + '</div>';
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div><div style="font-size:10px;color:#8B8F98;font-family:IBM Plex Mono,monospace">TOW RISK MAP</div></div>'+
+    '<div class="content">'+
+    '<div id="map-status" style="font-family:IBM Plex Mono,monospace;font-size:10px;color:#8B8F98;margin-bottom:10px">📍 Getting your location...</div>'+
+    '<div class="map-box">'+
+    '<div class="map-grid"></div>'+
+    '<div class="map-sh" style="top:25%"></div><div class="map-sh" style="top:50%"></div><div class="map-sh" style="top:75%"></div>'+
+    '<div class="map-sv" style="left:25%"></div><div class="map-sv" style="left:50%"></div><div class="map-sv" style="left:75%"></div>'+
+    '<div class="map-user" style="top:50%;left:50%;transform:translate(-50%,-50%)"></div>'+
+    '<div style="position:absolute;top:10px;left:10px;right:10px;background:rgba(13,17,23,.96);border:1px solid #3A3D44;border-radius:9px;padding:8px 11px;font-size:10px;color:#8B8F98;font-family:IBM Plex Mono,monospace">🔍 Meters near you</div>'+
+    '</div>'+
+    '<div class="legend">'+
+    '<div class="legend-i"><div class="legend-d" style="background:#FF6B3D"></div>High risk</div>'+
+    '<div class="legend-i"><div class="legend-d" style="background:#3DDC97"></div>Safe</div>'+
+    '</div>'+
+    '<div style="font-weight:900;font-size:17px;margin-bottom:10px">Meters Near You</div>'+
+    '<div id="nearby-list"><div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Loading...</div></div>'+
+    '</div>'+nav('map')+'</div>';
 }
 
 function accountHTML() {
   if (!state.user) {
-    return '<div class="screen">' +
-      '<div class="top-bar"><div class="logo">TOWED</div></div>' +
-      '<div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center">' +
-      '<div style="font-size:48px;margin-bottom:20px">👤</div>' +
-      '<div style="font-weight:900;font-size:26px;margin-bottom:8px">No account yet</div>' +
-      '<div style="color:#8B8F98;font-size:15px;margin-bottom:28px">Sign up free to save your spots and get alerts.</div>' +
-      '<button class="check-btn" style="max-width:280px" onclick="showSignupModal()">Create free account →</button>' +
-      '</div>' + navHTML('account') + '</div>';
+    return '<div class="screen">'+
+      '<div class="top-bar"><div class="logo">TOWED</div></div>'+
+      '<div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center">'+
+      '<div style="font-size:48px;margin-bottom:18px">👤</div>'+
+      '<div style="font-weight:900;font-size:24px;margin-bottom:8px">No account yet</div>'+
+      '<div style="color:#8B8F98;font-size:14px;margin-bottom:24px">Sign up free to save spots, get alerts, and unlock premium.</div>'+
+      '<button class="btn" style="max-width:260px" onclick="showSignupModal()">Create free account →</button>'+
+      '</div>'+nav('account')+'</div>';
   }
-  const initial = (state.user.firstName[0] + (state.user.lastName ? state.user.lastName[0] : '')).toUpperCase();
-  return '<div class="screen">' +
-    '<div class="top-bar"><div class="logo">TOWED</div></div>' +
-    '<div class="content">' +
-    '<div style="height:16px"></div>' +
-    '<div class="account-avatar">' + initial + '</div>' +
-    '<div class="account-name">' + state.user.firstName + ' ' + (state.user.lastName || '') + '</div>' +
-    '<div class="account-email">' + state.user.email + '</div>' +
-    '<div class="account-card">' +
-    '<div class="account-card-title">Current Plan</div>' +
-    '<div class="account-stat"><span class="account-stat-lbl">Plan</span><span class="account-stat-val">Free</span></div>' +
-    '<div class="account-stat"><span class="account-stat-lbl">Checks remaining</span><span class="account-stat-val">' + state.credits + '</span></div>' +
-    '<div class="account-stat"><span class="account-stat-lbl">Trial period</span><span class="account-stat-val">7 days</span></div>' +
-    '</div>' +
-    '<button class="upgrade-btn" onclick="window.location.href=\'' + STRIPE_LINK + '\'">Upgrade to Premium →</button>' +
-    '<button class="signout-btn" onclick="signOut()">Sign out</button>' +
-    '</div>' + navHTML('account') + '</div>';
+  const init=(state.user.firstName[0]+(state.user.lastName?state.user.lastName[0]:'')).toUpperCase();
+  const savedSpots = state.saved && state.saved.length > 0 ?
+    '<div class="card" style="margin-top:12px"><div class="card-label">SAVED SPOTS</div>'+
+    state.saved.map(function(s){ return '<div class="saved-item"><div style="flex:1"><div style="font-size:13px;font-weight:700">'+s.street+'</div><div style="font-size:10px;color:#8B8F98">Meter #'+s.meter+'</div></div><button onclick="quickCheck(\''+s.meter+'\')" style="background:#FFC83D;border:none;border-radius:7px;padding:5px 10px;color:#0E1013;font-weight:700;font-size:11px;cursor:pointer">Check</button></div>'; }).join('')+
+    '</div>' : '';
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div></div>'+
+    '<div class="content">'+
+    '<div style="height:14px"></div>'+
+    '<div class="ava">'+init+'</div>'+
+    '<div style="font-weight:900;font-size:24px;margin-bottom:4px">'+state.user.firstName+' '+(state.user.lastName||'')+'</div>'+
+    '<div style="font-size:13px;color:#8B8F98;margin-bottom:20px">'+state.user.email+'</div>'+
+    '<div class="card">'+
+    '<div class="card-label">Plan</div>'+
+    '<div class="a-stat"><span style="color:#C9CBD1">Status</span><span style="font-weight:700">Free</span></div>'+
+    '<div class="a-stat"><span style="color:#C9CBD1">Checks remaining</span><span style="font-weight:700">'+state.credits+'</span></div>'+
+    '<div class="a-stat"><span style="color:#C9CBD1">Trial</span><span style="font-weight:700">7 days</span></div>'+
+    '</div>'+
+    savedSpots+
+    '<button class="btn" onclick="window.location.href=\''+STRIPE+'\'">Upgrade to Premium →</button>'+
+    '<button class="btn btn-ghost" onclick="signOut()">Sign out</button>'+
+    '<div style="margin-top:20px;text-align:center">'+
+    '<button onclick="goNav(\'privacy\')" style="background:none;border:none;color:#8B8F98;font-size:12px;cursor:pointer;margin:0 8px">Privacy Policy</button>'+
+    '<button onclick="goNav(\'terms\')" style="background:none;border:none;color:#8B8F98;font-size:12px;cursor:pointer;margin:0 8px">Terms of Service</button>'+
+    '</div>'+
+    '</div>'+nav('account')+'</div>';
 }
 
 function paywallHTML() {
-  return '<div class="screen">' +
-    '<div class="top-bar"><div class="logo">TOWED</div></div>' +
-    '<div class="content" style="padding-top:40px">' +
-    '<div class="paywall-num">3/3</div>' +
-    '<div class="paywall-title">Free checks used up.</div>' +
-    '<div class="paywall-sub">NYC drivers pay $115–$500+ when they get caught. Towed keeps you protected for less than a MetroCard swipe.</div>' +
-    '<div class="price-card"><div class="price-num">$3.99<span style="font-size:18px;color:#8B8F98">/mo</span></div><div class="price-lbl">Unlimited checks · Tow alerts · Sign scanner</div></div>' +
-    '<button class="check-btn" onclick="window.location.href=\'' + STRIPE_LINK + '\'">Start 7-day free trial →</button>' +
-    '<div style="color:#8B8F98;font-size:12px;margin-top:10px;text-align:center">No credit card required for trial</div>' +
-    '</div>' + navHTML('check') + '</div>';
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div></div>'+
+    '<div class="content" style="padding-top:40px;text-align:center">'+
+    '<div style="font-weight:900;font-size:52px;color:#FFC83D;margin-bottom:8px">3/3</div>'+
+    '<div style="font-weight:900;font-size:26px;margin-bottom:10px">Free checks used up.</div>'+
+    '<div style="color:#B9BCC3;font-size:14px;line-height:1.5;margin-bottom:24px">NYC drivers pay $115–$500+ when caught. Towed keeps you protected for less than a MetroCard swipe.</div>'+
+    '<div class="card" style="text-align:center">'+
+    '<div style="font-weight:900;font-size:40px">$3.99<span style="font-size:16px;color:#8B8F98">/mo</span></div>'+
+    '<div style="color:#8B8F98;font-size:12px;margin-top:4px">Unlimited checks · Tow alerts · Sign scanner</div>'+
+    '</div>'+
+    '<button class="btn" onclick="window.location.href=\''+STRIPE+'\'">Start 7-day free trial →</button>'+
+    '<div style="color:#8B8F98;font-size:11px;margin-top:8px">No credit card required for trial</div>'+
+    '</div>'+nav('check')+'</div>';
+}
+
+function legalHTML(type) {
+  const privacy = '<h3>What we collect</h3><p>When you sign up we collect your first name, last name, and email address. When you use the meter lookup we process your search to return results. We do not collect payment information — payments are handled by Stripe.</p>'+
+    '<h3>How we use it</h3><p>We use your information to provide the Towed service, send you parking alerts, and improve the product. We do not sell your personal information to third parties.</p>'+
+    '<h3>Cookies</h3><p>We use local storage to remember your session and parking history. We use a device identifier to prevent abuse of free checks.</p>'+
+    '<h3>Data sources</h3><p>Parking meter data is sourced from NYC Open Data (data.cityofnewyork.us) under the NYC Open Data Terms of Use. Always verify with posted signs.</p>'+
+    '<h3>Contact</h3><p>Questions? Email us at hello@towed.nyc</p>';
+  const terms = '<h3>Use of Service</h3><p>Towed provides parking information as a convenience tool. Information is sourced from NYC Open Data and may not reflect real-time conditions. Always verify with posted street signs.</p>'+
+    '<h3>No Guarantee</h3><p>Towed does not guarantee the accuracy of parking information. We are not liable for tickets, towing fees, or other costs incurred while using the service.</p>'+
+    '<h3>Subscription</h3><p>Premium plans are billed monthly at $3.99/month. You may cancel at any time. The 7-day free trial requires no credit card. After the trial, a payment method is required to continue Premium access.</p>'+
+    '<h3>Prohibited Use</h3><p>You may not use Towed to create competing products, scrape data, or circumvent our free check limits through automated means.</p>'+
+    '<h3>Changes</h3><p>We may update these terms at any time. Continued use of Towed constitutes acceptance of updated terms.</p>'+
+    '<h3>Contact</h3><p>Towed, LLC · hello@towed.nyc · towed.nyc</p>';
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div></div>'+
+    '<div class="content">'+
+    '<button class="back-btn" onclick="history.back?goNav(\'home\'):goNav(\'account\')">← Back</button>'+
+    '<div style="font-weight:900;font-size:24px;margin-bottom:6px">'+(type==='privacy'?'Privacy Policy':'Terms of Service')+'</div>'+
+    '<div style="font-size:11px;color:#8B8F98;margin-bottom:20px">Last updated: October 2026</div>'+
+    '<div class="prose">'+(type==='privacy'?privacy:terms)+'</div>'+
+    '</div></div>';
+}
+
+function faqHTML() {
+  const faqs=[
+    ['Where do I find my meter number?','Look at the sticker on the metal post right next to where you parked. It\'s a 7-digit number, usually starting with the borough code (1=Manhattan, 2=Brooklyn, 3=Queens, 4=Bronx, 5=Staten Island).'],
+    ['Is the data real-time?','Meter location and rule data comes from NYC DOT via NYC Open Data, updated regularly. Current restriction status is calculated in real-time based on the rules and current time. Always verify with posted signs.'],
+    ['What if my meter isn\'t found?','Double-check the number on the post. Some meters in private lots or garages may not be in the NYC DOT dataset. Try nearby meter numbers on the same block.'],
+    ['How do tow alerts work?','After you tap "I parked here" on a safe result, Towed sets a countdown based on the meter hours. You\'ll get browser notifications 30 minutes and 10 minutes before the meter expires — if you allow notifications.'],
+    ['Can I use Towed outside NYC?','Currently Towed only covers NYC meters. We\'re expanding to other cities — sign up to get notified when your city launches.'],
+    ['Is Towed free?','Yes — you get free meter checks to start. Premium is $3.99/month for unlimited checks, tow alerts, and more. Start with a 7-day free trial.'],
+    ['My car got towed — what do I do?','Call 311 or visit nyc.gov/dot to find where your car was taken. Have your plate number, make, and model ready. Most NYC tow pounds are open 24/7.'],
+  ];
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div></div>'+
+    '<div class="content">'+
+    '<button class="back-btn" onclick="goNav(\'check\')">← Back</button>'+
+    '<div style="font-weight:900;font-size:24px;margin-bottom:20px">Frequently Asked Questions</div>'+
+    faqs.map(function(f){ return '<div class="card" style="margin-bottom:10px"><div style="font-weight:800;font-size:14px;margin-bottom:8px">'+f[0]+'</div><div style="font-size:13px;color:#B9BCC3;line-height:1.5">'+f[1]+'</div></div>'; }).join('')+
+    '</div></div>';
+}
+
+function aboutHTML() {
+  return '<div class="screen">'+
+    '<div class="top-bar"><div class="logo">TOWED</div></div>'+
+    '<div class="content">'+
+    '<button class="back-btn" onclick="goNav(\'check\')">← Back</button>'+
+    '<div style="font-weight:900;font-size:24px;margin-bottom:6px">About Towed</div>'+
+    '<div style="font-size:11px;color:#8B8F98;margin-bottom:20px">Built in Brooklyn, NY</div>'+
+    '<div class="prose">'+
+    '<p>Towed was built for one reason: NYC parking is chaos and nobody should have to pay $300 because a sign was confusing.</p>'+
+    '<h3>The problem</h3>'+
+    '<p>NYC issues over 10 million parking tickets every year. Drivers lose over $1.1 billion annually to tickets and towing fees. Most of it is preventable — if you know the rules.</p>'+
+    '<h3>The solution</h3>'+
+    '<p>Towed connects to NYC\'s official parking meter database and tells you in plain English whether you can park at any meter right now. No guessing. No fine print. Just: safe or move.</p>'+
+    '<h3>The data</h3>'+
+    '<p>All parking data comes from <a href="https://data.cityofnewyork.us" target="_blank">NYC Open Data</a>, the city\'s official public data portal. We check the rules against the current time and day to give you an instant answer.</p>'+
+    '<h3>Built by</h3>'+
+    '<p>Towed is a product of Towed, LLC, an NYC-based startup focused on civic technology that actually helps people.</p>'+
+    '<h3>Contact</h3>'+
+    '<p>hello@towed.nyc · towed.nyc</p>'+
+    '</div>'+
+    '</div></div>';
 }
 
 function initMap() {
   if (!navigator.geolocation) {
-    const el = document.getElementById('map-status');
-    if (el) el.textContent = 'Geolocation not supported on this browser.';
+    const el=document.getElementById('map-status');
+    if (el) el.textContent='Geolocation not supported.';
     return;
   }
   navigator.geolocation.getCurrentPosition(
-    function(pos) { loadNearbyMeters(pos.coords.latitude, pos.coords.longitude); },
-    function() {
-      const el = document.getElementById('map-status');
-      if (el) el.textContent = 'Location access denied. Enable to see nearby meters.';
-      const listEl = document.getElementById('nearby-list');
-      if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Allow location access to see meters near you.</div>';
+    function(p){ loadNearby(p.coords.latitude, p.coords.longitude); },
+    function(){
+      const el=document.getElementById('map-status');
+      if (el) el.textContent='Location access denied. Enable to see nearby meters.';
+      const l=document.getElementById('nearby-list');
+      if (l) l.innerHTML='<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Allow location to see meters near you.</div>';
     }
   );
 }
 
-async function loadNearbyMeters(lat, lng) {
-  const statusEl = document.getElementById('map-status');
-  const listEl = document.getElementById('nearby-list');
-  if (statusEl) statusEl.textContent = '📍 Showing meters near you';
+async function loadNearby(lat, lng) {
+  const st=document.getElementById('map-status');
+  const li=document.getElementById('nearby-list');
+  if (st) st.textContent='📍 Showing meters near you';
   try {
-    const delta = 0.004;
-    const url = API + '?$where=lat>' + (lat-delta) + ' AND lat<' + (lat+delta) + ' AND long>' + (lng-delta) + ' AND long<' + (lng+delta) + '&$limit=10';
-    const res = await fetch(url);
-    const data = await res.json();
-    if (!data || data.length === 0) {
-      if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">No meters found nearby. Try checking a meter number directly.</div>';
-      return;
-    }
-    if (listEl) {
-      listEl.innerHTML = data.map(function(m) {
-        const parsed = parseHours(m.meter_hours);
-        const cls = parsed.safe ? 'low' : 'high';
-        const icon = parsed.safe ? '✅' : '🚨';
-        const color = parsed.safe ? '#3DDC97' : '#FF6B3D';
-        return '<div class="risk-item" onclick="selectNearbyMeter(\'' + m.meter_number + '\')">' +
-          '<div class="risk-badge ' + cls + '">' + icon + '</div>' +
-          '<div style="flex:1"><div class="risk-street">' + (m.on_street || 'Unknown Street') + '</div>' +
-          '<div class="risk-detail">Meter #' + m.meter_number + ' · ' + (m.borough || '') + ' · ' + parsed.info + '</div></div>' +
-          '<div style="font-size:11px;color:' + color + ';font-weight:700">' + (parsed.safe ? 'SAFE' : 'RISK') + '</div>' +
-          '</div>';
-      }).join('');
-    }
-  } catch(e) {
-    if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Could not load nearby meters.</div>';
-  }
-}
-
-function selectNearbyMeter(meterNum) {
-  state.screen = 'home';
-  render();
-  setTimeout(function() {
-    const inp = document.getElementById('meterInput');
-    if (inp) { inp.value = meterNum; checkMeter(); }
-  }, 150);
+    const d=0.004;
+    const res=await fetch(API+'?$where=lat>'+(lat-d)+' AND lat<'+(lat+d)+' AND long>'+(lng-d)+' AND long<'+(lng+d)+'&$limit=10');
+    const data=await res.json();
+    if (!data||data.length===0) { if (li) li.innerHTML='<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">No meters found nearby.</div>'; return; }
+    if (li) li.innerHTML=data.map(function(m){
+      const p=parseHours(m.meter_hours), safe=p.safe;
+      return '<div class="risk-item" onclick="quickCheck(\''+m.meter_number+'\')">'+
+        '<div class="risk-badge" style="background:'+(safe?'rgba(61,220,151,.12)':'rgba(255,107,61,.15)')+'">'+(safe?'✅':'🚨')+'</div>'+
+        '<div style="flex:1"><div style="font-size:12px;font-weight:700">'+(m.on_street||'Unknown')+'</div>'+
+        '<div style="font-size:10px;color:#8B8F98">Meter #'+m.meter_number+' · '+(m.borough||'')+'</div>'+
+        '<div style="font-size:10px;color:'+(safe?'#3DDC97':'#FF6B3D')+';margin-top:2px">'+p.info+'</div></div>'+
+        '<div style="font-size:10px;color:'+(safe?'#3DDC97':'#FF6B3D')+';font-weight:700">'+(safe?'SAFE':'RISK')+'</div>'+
+        '</div>';
+    }).join('');
+  } catch(e) { if (li) li.innerHTML='<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Could not load nearby meters.</div>'; }
 }
 
 function startTimer() {
   if (state.timerInterval) clearInterval(state.timerInterval);
-  updateTimerDisplay();
-  state.timerInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimer();
+  state.timerInterval = setInterval(updateTimer, 1000);
 }
 
-function updateTimerDisplay() {
-  const el = document.getElementById('timer-display');
-  const arc = document.getElementById('timer-arc');
+function updateTimer() {
+  const el=document.getElementById('timer-display');
+  const arc=document.getElementById('timer-arc');
   if (!el) { clearInterval(state.timerInterval); return; }
-  if (!state.parkedExpiry) { el.textContent = '--:--'; return; }
-  const now = new Date();
-  const expiry = new Date(state.parkedExpiry);
-  const parkedAt = new Date(state.parkedAt);
-  const totalDuration = expiry - parkedAt;
-  const diff = Math.max(0, expiry - now);
-  const pct = totalDuration > 0 ? diff / totalDuration : 0;
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
-  if (diff === 0) {
-    el.textContent = 'EXPIRED';
-    el.style.color = '#FF6B3D';
-  } else {
-    el.textContent = h > 0
-      ? h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0')
-      : String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-    el.style.color = diff < 10*60*1000 ? '#FF6B3D' : diff < 30*60*1000 ? '#FFD60A' : '#F2F2EE';
+  if (!state.parkedExpiry) { el.textContent='--:--'; return; }
+  const now=new Date(), exp=new Date(state.parkedExpiry), pa=new Date(state.parkedAt);
+  const total=exp-pa, diff=Math.max(0,exp-now), pct=total>0?diff/total:0;
+  const h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+  if (diff===0) { el.textContent='EXPIRED'; el.style.color='#FF6B3D'; }
+  else {
+    el.textContent=h>0?h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'):String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    el.style.color=diff<600000?'#FF6B3D':diff<1800000?'#FFD60A':'#F2F2EE';
   }
-  if (arc) {
-    arc.style.strokeDashoffset = 723 * (1 - pct);
-    arc.style.stroke = diff < 10*60*1000 ? '#FF6B3D' : diff < 30*60*1000 ? '#FFD60A' : '#FFC83D';
-  }
+  if (arc) { arc.style.strokeDashoffset=666*(1-pct); arc.style.stroke=diff<600000?'#FF6B3D':diff<1800000?'#FFD60A':'#FFC83D'; }
 }
 
-function requestNotificationPermission(expiryTime, street) {
+function reqNotif(expiry, street) {
   if (!('Notification' in window)) return;
-  Notification.requestPermission().then(function(permission) {
-    if (permission === 'granted') scheduleNotifications(expiryTime, street);
-  });
+  Notification.requestPermission().then(function(p){ if (p==='granted') schedNotif(expiry, street); });
 }
 
-function scheduleNotifications(expiryTime, street) {
-  const now = new Date();
-  const expiry = new Date(expiryTime);
-  const thirtyMin = expiry.getTime() - 30*60*1000 - now.getTime();
-  const tenMin = expiry.getTime() - 10*60*1000 - now.getTime();
-  const atExpiry = expiry.getTime() - now.getTime();
-  if (thirtyMin > 0) setTimeout(function() {
-    new Notification('🚗 TOWED — Move Your Car', {body:'Meter expires in 30 minutes on ' + street + '. Move now!', requireInteraction:true});
-  }, thirtyMin);
-  if (tenMin > 0) setTimeout(function() {
-    new Notification('⚠️ TOWED — 10 Minutes Left', {body:'Meter expires in 10 minutes on ' + street + '. Move NOW!', requireInteraction:true});
-  }, tenMin);
-  if (atExpiry > 0) setTimeout(function() {
-    new Notification('🚨 TOWED — Meter Expired', {body:'Your meter on ' + street + ' has expired!', requireInteraction:true});
-  }, atExpiry);
+function schedNotif(expiry, street) {
+  const now=new Date(), exp=new Date(expiry);
+  const t30=exp.getTime()-1800000-now.getTime();
+  const t10=exp.getTime()-600000-now.getTime();
+  const t0=exp.getTime()-now.getTime();
+  if (t30>0) setTimeout(function(){ new Notification('🚗 TOWED — Move Your Car',{body:'Meter expires in 30 min on '+street,requireInteraction:true}); },t30);
+  if (t10>0) setTimeout(function(){ new Notification('⚠️ TOWED — 10 Minutes Left',{body:'Meter expires in 10 min on '+street+'. Move NOW!',requireInteraction:true}); },t10);
+  if (t0>0) setTimeout(function(){ new Notification('🚨 TOWED — Meter Expired',{body:'Your meter on '+street+' has expired!',requireInteraction:true}); },t0);
 }
 
 function iParkHere() {
-  const r = state.result;
-  if (!r) return;
-  const expiry = getExpiryFromMeter(r.meter_hours);
-  state.parkedAt = new Date().toISOString();
-  state.parkedExpiry = expiry.toISOString();
+  const r=state.result; if (!r) return;
+  const exp=getExpiry(r.meter_hours);
+  state.parkedAt=new Date().toISOString();
+  state.parkedExpiry=exp.toISOString();
   saveState();
-  requestNotificationPermission(expiry, r.on_street || 'your spot');
-  state.screen = 'parked';
-  render();
+  reqNotif(exp, r.on_street||'your spot');
+  state.screen='parked'; render();
 }
 
-function goNav(id) {
-  if (id === 'check') state.screen = 'home';
-  else if (id === 'map') state.screen = 'map';
-  else if (id === 'parked') state.screen = 'parked';
-  else if (id === 'account') state.screen = 'account';
-  render();
-}
-
-function goHome() {
-  if (!state.user && state.usedFree >= 3) state.screen = 'paywall';
-  else if (state.user && state.credits <= 0) state.screen = 'paywall';
-  else state.screen = 'home';
-  render();
-}
-
-async function checkMeter() {
-  if (!state.user && state.usedFree >= 3) { state.screen = 'paywall'; render(); return; }
-  if (state.user && state.credits <= 0) { state.screen = 'paywall'; render(); return; }
-  const val = document.getElementById('meterInput').value.trim();
-  if (!val) return;
-  document.getElementById('meter-error').textContent = '';
-  document.getElementById('root').innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif">Checking NYC parking rules…</div>';
-  try {
-    const res = await fetch(API + '?meter_number=' + encodeURIComponent(val) + '&$limit=1');
-    const data = await res.json();
-    if (data && data.length > 0 && data[0].meter_number) {
-      const meter = data[0];
-      const parsed = parseHours(meter.meter_hours);
-      state.result = Object.assign({}, meter, parsed);
-      state.lastMeter = val;
-      if (state.user) state.credits = Math.max(0, state.credits - 1);
-      else state.usedFree++;
-      saveState();
-      state.screen = 'result';
-      render();
-      if (!state.user && state.usedFree === 1) setTimeout(showSignupModal, 2000);
-    } else {
-      state.screen = 'home'; render();
-      document.getElementById('meter-error').textContent = 'Meter not found. Check the 7-digit number on the post.';
-      document.getElementById('meterInput').value = val;
-    }
-  } catch(e) {
-    state.screen = 'home'; render();
-    document.getElementById('meter-error').textContent = 'Connection error. Try again.';
+function saveSpot() {
+  if (!state.result||!state.user) return;
+  if (!state.saved) state.saved=[];
+  const exists=state.saved.find(function(s){ return s.meter===state.lastMeter; });
+  if (!exists) {
+    state.saved.unshift({meter:state.lastMeter, street:state.result.on_street||'Unknown', borough:state.result.borough||''});
+    if (state.saved.length>10) state.saved=state.saved.slice(0,10);
+    saveState();
+    alert('Spot saved! Find it in your Account tab.');
+  } else {
+    alert('This spot is already saved.');
   }
 }
 
+function shareResult(text) {
+  const decoded=decodeURIComponent(text);
+  if (navigator.share) {
+    navigator.share({title:'TOWED',text:decoded,url:'https://towed.nyc'}).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(decoded).then(function(){ alert('Result copied to clipboard!'); }).catch(function(){
+      prompt('Copy this:',decoded);
+    });
+  }
+}
+
+function showCookieBanner() {
+  if (localStorage.getItem('towed_cookie_ok')) return;
+  const bar=document.getElementById('cookie-bar');
+  if (!bar) return;
+  bar.style.display='flex';
+  bar.innerHTML='<div class="cookie-text">Towed uses cookies and local storage to remember your session, parking history, and keep the app fast. By using towed.nyc you agree to our <a href="#" onclick="goNav(\'privacy\')" style="color:#FFC83D">Privacy Policy</a>.</div>'+
+    '<button class="cookie-btn" onclick="acceptCookies()">Got it</button>';
+}
+
+function acceptCookies() {
+  localStorage.setItem('towed_cookie_ok','1');
+  const bar=document.getElementById('cookie-bar');
+  if (bar) bar.style.display='none';
+}
+
+function showPWAPrompt() {
+  if (localStorage.getItem('towed_pwa_dismissed')) return;
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (!isIOS) return;
+  const el=document.getElementById('pwa-prompt');
+  if (el) el.style.display='flex';
+}
+
+async function checkMeter() {
+  if (!state.user && state.usedFree>=3) { state.screen='paywall'; render(); return; }
+  if (state.user && state.credits<=0) { state.screen='paywall'; render(); return; }
+  const val=document.getElementById('meterInput').value.trim();
+  if (!val) return;
+  document.getElementById('meter-error').textContent='';
+  document.getElementById('root').innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif">Checking NYC parking rules…</div>';
+  try {
+    const res=await fetch(API+'?meter_number='+encodeURIComponent(val)+'&$limit=1');
+    const data=await res.json();
+    if (data&&data.length>0&&data[0].meter_number) {
+      const meter=data[0], parsed=parseHours(meter.meter_hours);
+      state.result=Object.assign({},meter,parsed);
+      state.lastMeter=val;
+      if (state.user) state.credits=Math.max(0,state.credits-1);
+      else {
+        state.usedFree++;
+        const dc=parseInt(localStorage.getItem('towed_dc')||'0');
+        localStorage.setItem('towed_dc',dc+1);
+      }
+      // Add to history
+      if (!state.history) state.history=[];
+      state.history.unshift({meter:val, street:meter.on_street||'Unknown', safe:parsed.safe, time:new Date().toISOString()});
+      if (state.history.length>5) state.history=state.history.slice(0,5);
+      // Increment counter
+      state.totalChecks++;
+      localStorage.setItem('towed_tc', state.totalChecks);
+      saveState();
+      state.screen='result'; render();
+      if (!state.user&&state.usedFree===1) setTimeout(showSignupModal,2000);
+    } else {
+      state.screen='home'; render();
+      document.getElementById('meter-error').textContent='Meter not found. Check the 7-digit number on the post.';
+      document.getElementById('meterInput').value=val;
+    }
+  } catch(e) {
+    state.screen='home'; render();
+    document.getElementById('meter-error').textContent='Connection error. Try again.';
+  }
+}
+
+async function quickCheck(meterNum) {
+  state.screen='home'; render();
+  setTimeout(function(){
+    const inp=document.getElementById('meterInput');
+    if (inp) { inp.value=meterNum; checkMeter(); }
+  },150);
+}
+
 function showSignupModal() {
-  const left = 3 - state.usedFree;
-  document.getElementById('modal-overlay').style.display = 'flex';
-  document.getElementById('modal-overlay').innerHTML =
-    '<div class="modal">' +
-    '<div class="modal-handle"></div>' +
-    '<div class="modal-title">Don\'t get caught like this again.</div>' +
-    '<div class="modal-sub">Sign up free and we\'ll ping you before cleaning, meter, or tow-risk windows hit your car.</div>' +
-    '<input class="modal-input" id="m-first" placeholder="First name"/>' +
-    '<input class="modal-input" id="m-last" placeholder="Last name"/>' +
-    '<input class="modal-input" id="m-email" type="email" placeholder="Email address"/>' +
-    '<input class="modal-input" id="m-password" type="password" placeholder="Create a password (min 6 characters)"/>' +
-    '<button class="modal-btn" onclick="signupFromModal()">Create free account →</button>' +
-    '<div id="modal-err" class="modal-error"></div>' +
-    '<button class="modal-skip" onclick="skipSignup()">Skip for now · ' + left + ' free check' + (left !== 1 ? 's' : '') + ' left</button>' +
+  const left=Math.max(0,3-state.usedFree);
+  document.getElementById('modal-overlay').style.display='flex';
+  document.getElementById('modal-overlay').innerHTML=
+    '<div class="modal">'+
+    '<div class="modal-handle"></div>'+
+    '<div class="modal-title">Don\'t get caught like this again.</div>'+
+    '<div class="modal-sub">Sign up free and we\'ll ping you before cleaning, meter, or tow-risk windows hit your car.</div>'+
+    '<input class="modal-input" id="m-first" placeholder="First name"/>'+
+    '<input class="modal-input" id="m-last" placeholder="Last name"/>'+
+    '<input class="modal-input" id="m-email" type="email" placeholder="Email address"/>'+
+    '<input class="modal-input" id="m-password" type="password" placeholder="Create a password (min 6 characters)"/>'+
+    '<button style="width:100%;height:50px;background:#121418;color:#F4F3EE;border:none;border-radius:11px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px" onclick="signupFromModal()">Create free account →</button>'+
+    '<div id="modal-err" class="modal-err" style="color:#FF6B3D;font-size:11px;text-align:center;margin-top:4px"></div>'+
+    '<button class="modal-skip" onclick="skipSignup()">Skip for now · '+left+' free check'+(left!==1?'s':'')+' left</button>'+
     '</div>';
 }
 
 function signupFromModal() {
-  const first = document.getElementById('m-first').value.trim();
-  const last = document.getElementById('m-last').value.trim();
-  const email = document.getElementById('m-email').value.trim();
-  const password = document.getElementById('m-password').value.trim();
-  const err = document.getElementById('modal-err');
-  if (!first) { err.textContent = 'Enter your first name.'; return; }
-  if (!last) { err.textContent = 'Enter your last name.'; return; }
-  if (!email || !email.includes('@')) { err.textContent = 'Enter a valid email.'; return; }
-  if (!password || password.length < 6) { err.textContent = 'Password must be at least 6 characters.'; return; }
-  state.user = {firstName:first, lastName:last, email:email};
-  state.credits = 10;
+  const first=document.getElementById('m-first').value.trim();
+  const last=document.getElementById('m-last').value.trim();
+  const email=document.getElementById('m-email').value.trim();
+  const password=document.getElementById('m-password').value.trim();
+  const err=document.getElementById('modal-err');
+  if (!first){err.textContent='Enter your first name.';return;}
+  if (!last){err.textContent='Enter your last name.';return;}
+  if (!email||!email.includes('@')){err.textContent='Enter a valid email.';return;}
+  if (!password||password.length<6){err.textContent='Password must be at least 6 characters.';return;}
+  state.user={firstName:first,lastName:last,email:email};
+  state.credits=10;
   saveState();
-  fetch(SUPABASE_URL + '/rest/v1/Sign%20ups', {
+  fetch(SB_URL+'/rest/v1/Sign%20ups',{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPABASE_KEY,
-      'Authorization':'Bearer ' + SUPABASE_KEY,
-      'Prefer':'return=minimal'
-    },
-    body:JSON.stringify({first_name:first, last_name:last, email:email, password:password, created_at:new Date().toISOString()})
-  }).catch(function(e) { console.log('Supabase:', e); });
-  document.getElementById('modal-overlay').style.display = 'none';
+    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+    body:JSON.stringify({first_name:first,last_name:last,email:email,password:password,created_at:new Date().toISOString()})
+  }).catch(function(e){console.log('SB:',e);});
+  // Show success screen
+  document.getElementById('modal-overlay').innerHTML=
+    '<div class="modal" style="text-align:center">'+
+    '<div style="font-size:52px;margin-bottom:14px">🎉</div>'+
+    '<div style="font-weight:900;font-size:22px;color:#121418;margin-bottom:8px">You\'re in, '+first+'!</div>'+
+    '<div style="font-size:13px;color:#4A4D55;margin-bottom:18px">Welcome to Towed. You have 10 free checks and a 7-day trial to explore everything.</div>'+
+    '<div style="background:#0E1013;border-radius:10px;padding:12px;margin-bottom:18px">'+
+    '<div style="font-size:11px;color:#8B8F98;margin-bottom:3px">Signed in as</div>'+
+    '<div style="font-size:14px;font-weight:700;color:#F2F2EE">'+email+'</div>'+
+    '</div>'+
+    '<button style="width:100%;height:50px;background:#121418;color:#F4F3EE;border:none;border-radius:11px;font-family:Archivo,sans-serif;font-weight:800;font-size:15px;cursor:pointer" onclick="closeModal()">Start checking meters →</button>'+
+    '</div>';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').style.display='none';
   render();
 }
 
 function skipSignup() {
-  document.getElementById('modal-overlay').style.display = 'none';
+  document.getElementById('modal-overlay').style.display='none';
+}
+
+function goNav(id) {
+  if (id==='home'||id==='check') state.screen='home';
+  else if (id==='map') state.screen='map';
+  else if (id==='parked') state.screen='parked';
+  else if (id==='account') state.screen='account';
+  else if (id==='privacy') state.screen='privacy';
+  else if (id==='terms') state.screen='terms';
+  else if (id==='faq') state.screen='faq';
+  else if (id==='about') state.screen='about';
+  render();
+}
+
+function goHome() {
+  if (!state.user&&state.usedFree>=3) state.screen='paywall';
+  else if (state.user&&state.credits<=0) state.screen='paywall';
+  else state.screen='home';
+  render();
 }
 
 function signOut() {
-  state.user = null; state.credits = 3; state.usedFree = 0;
-  localStorage.removeItem('towed_v5');
-  state.screen = 'home'; render();
+  const dc=parseInt(localStorage.getItem('towed_dc')||'0');
+  state.user=null; state.credits=10; state.usedFree=dc;
+  localStorage.removeItem('towed_v6');
+  state.screen='home'; render();
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(function(e){console.log('SW:',e);});
 }
 
 loadState();
