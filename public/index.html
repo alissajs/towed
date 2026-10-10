@@ -586,8 +586,7 @@ function showPWAPrompt() {
 }
 
 async function checkMeter() {
-  if (!state.user && state.usedFree>=3) { state.screen='paywall'; render(); return; }
-  if (state.user && state.credits<=0) { state.screen='paywall'; render(); return; }
+
   const val=document.getElementById('meterInput').value.trim();
   if (!val) return;
   document.getElementById('meter-error').textContent='';
@@ -706,10 +705,7 @@ function goNav(id) {
 }
 
 function goHome() {
-  if (!state.user&&state.usedFree>=3) state.screen='paywall';
-  else if (state.user&&state.credits<=0) state.screen='paywall';
-  else state.screen='home';
-  render();
+  state.screen='home';
 }
 
 function signOut() {
