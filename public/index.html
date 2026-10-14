@@ -732,7 +732,6 @@ function signupFromModal(){
   var first=document.getElementById('m-first').value.trim();
   var last=document.getElementById('m-last').value.trim();
   var email=document.getElementById('m-email').value.trim();
- if(!password||password.length<6){err.textContent='Password must be at least 6 characters.';return;}
   var err=document.getElementById('modal-err');
   if(!first){err.textContent='Enter your first name.';return;}
   if(!last){err.textContent='Enter your last name.';return;}
