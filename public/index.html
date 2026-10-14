@@ -664,6 +664,11 @@ function checkMeter(){
         if(state.history.length>5) state.history=state.history.slice(0,5);
         state.totalChecks++;
         localStorage.setItem('towed_tc',state.totalChecks);
+        fetch(SB_URL+'/rest/v1/meter_searches',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+  body:JSON.stringify({meter_number:val,street:meter.on_street||'Unknown',borough:meter.borough||'Unknown',result:parsed.safe?'safe':'danger'})
+}).catch(function(e){console.log('Search log:',e);});
         saveState();
         state.screen='result';render();
        function showSignupModal(){
