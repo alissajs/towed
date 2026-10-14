@@ -1,0 +1,16 @@
+{
+  "name": "TOWED — NYC Parking Survival",
+  "short_name": "TOWED",
+  "description": "Check any NYC parking meter instantly.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E1013",
+  "theme_color": "#FFC83D",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
