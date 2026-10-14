@@ -745,6 +745,7 @@ function signupFromModal(){
     headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
    body:JSON.stringify({first_name:first,last_name:last,email:email,created_at:new Date().toISOString()})
   }).catch(function(e){console.log('SB:',e);});
+ 
   document.getElementById('modal-overlay').innerHTML=
     '<div class="modal" style="text-align:center">'+
     '<div style="font-size:52px;margin-bottom:14px">🎉</div>'+
