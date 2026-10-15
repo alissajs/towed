@@ -529,7 +529,7 @@ function getPosition(onOk,onErr){
     navigator.geolocation.getCurrentPosition(onOk,function(e2){
       onErr(e2.code===1?locationBlockedMsg():'Couldn\'t find your location. Make sure Location is turned on, then try again.');
     },{enableHighAccuracy:false,timeout:20000,maximumAge:300000});
-  },{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+  },{enableHighAccuracy:false,timeout:20000,maximumAge:60000});
 }
 
 function locationBlockedMsg(){
