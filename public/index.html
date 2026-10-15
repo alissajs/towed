@@ -155,23 +155,33 @@ function loadTotalChecks(){
     .catch(function(){});
 }
 
-function logSearch(val,meter,parsed){
+// Saves every search to Supabase. type: 'meter' | 'near_me' | 'block' | 'map'.
+function logSearch(type,val,meter,result,count){
   fetch(SB_URL+'/rest/v1/meter_searches',{
     method:'POST',
     headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
     body:JSON.stringify({
-      meter_number:val,
+      search_type:type,
+      meter_number:val||(meter?meter.meter_number:null),
       found:!!meter,
       street:meter?(meter.on_street||'Unknown'):null,
       borough:meter?(meter.borough||'Unknown'):null,
-      result:meter?(parsed.safe?'safe':'danger'):'not_found',
+      result:result,
       meter_hours:meter?(meter.meter_hours||null):null,
+      meters_found:count==null?(meter?1:0):count,
       user_email:state.user?state.user.email:null,
       device:navigator.userAgent.slice(0,200)
     })
   }).then(function(r){
     if(!r.ok) r.text().then(function(t){console.warn('meter_searches save failed:',r.status,t);});
   }).catch(function(e){console.warn('meter_searches save failed:',e);});
+  if(meter) setTotalChecks(state.totalChecks+1);
+}
+
+// Log a location-based search: nearest meter, and danger if any meter nearby is restricted now.
+function logArea(type,meters){
+  var danger=meters.some(function(m){return !parseHours(m.meter_hours).safe;});
+  logSearch(type,null,meters[0]||null,meters.length?(danger?'danger':'safe'):'none_nearby',meters.length);
 }
 
 function saveState(){
@@ -613,10 +623,11 @@ function findNearMe(){
   loadingScreen('📍','Finding meters near you...');
   getPosition(function(pos){
     nearbyMeters(pos.coords.latitude,pos.coords.longitude,10,function(data){
+      logArea('near_me',data);
       if(!data.length){locationErrorScreen('No meters nearby',NO_METERS_MSG,'findNearMe');return;}
       showNearbyResults(data);
     },function(){locationErrorScreen('Connection problem','Could not load nearby meters. Check your connection and try again.','findNearMe');});
-  },function(msg){locationErrorScreen('Can\'t get your location',msg,'findNearMe');});
+  },function(msg){logSearch('near_me',null,null,'location_error',0);locationErrorScreen('Can\'t get your location',msg,'findNearMe');});
 }
 
 function showNearbyResults(meters){
@@ -634,9 +645,9 @@ function showNearbyResults(meters){
 function checkMyBlock(){
   loadingScreen('🧹','Checking your block...');
   getPosition(function(pos){
-    nearbyMeters(pos.coords.latitude,pos.coords.longitude,5,showASPResults,
+    nearbyMeters(pos.coords.latitude,pos.coords.longitude,5,function(data){logArea('block',data);showASPResults(data);},
       function(){locationErrorScreen('Connection problem','Could not load block data. Check your connection and try again.','checkMyBlock');});
-  },function(msg){locationErrorScreen('Can\'t get your location',msg,'checkMyBlock');});
+  },function(msg){logSearch('block',null,null,'location_error',0);locationErrorScreen('Can\'t get your location',msg,'checkMyBlock');});
 }
 
 function showASPResults(meters){
@@ -876,14 +887,12 @@ function checkMeter(){
         if(!state.history) state.history=[];
         state.history.unshift({meter:val,street:meter.on_street||'Unknown',safe:parsed.safe});
         if(state.history.length>5) state.history=state.history.slice(0,5);
-        setTotalChecks(state.totalChecks+1);
         saveState();
-        logSearch(val,meter,parsed);
+        logSearch('meter',val,meter,parsed.safe?'safe':'danger');
         state.screen='result';render();
         if(!state.user&&state.guestChecks===1) setTimeout(openSignup,2000);
       } else {
-        logSearch(val,null,null);
-        setTotalChecks(state.totalChecks+1);
+        logSearch('meter',val,null,'not_found');
         state.screen='home';render();
         document.getElementById('meter-error').textContent='Meter not found. Check the 7-digit number on the post.';
         document.getElementById('meterInput').value=val;
