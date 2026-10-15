@@ -111,13 +111,14 @@ footer a{color:#FFC83D;text-decoration:none;}
 var API='https://data.cityofnewyork.us/resource/693u-uax6.json';
 var SB_URL='https://vllfzbozlgnkvszcoffd.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZsbGZ6Ym96bGdua3ZzemNvZmZkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1MTc5MzksImV4cCI6MjEwNzA5MzkzOX0.VAsQ1-qgFq5TrLxq59sM_R-3ow6DsRFyWUx2UPS_dTQ';
+var BASE_CHECKS=15000;
 var STRIPE='https://buy.stripe.com/test_6oUaEYcdT08nfyI9t3dIA00';
 
 var state={
   screen:'home',user:null,credits:999,
   result:null,lastMeter:'',parkedAt:null,parkedExpiry:null,
   timerInterval:null,history:[],saved:[],
-  totalChecks:parseInt(localStorage.getItem('towed_tc')||'15000'),
+  totalChecks:BASE_CHECKS,
   guestChecks:parseInt(localStorage.getItem('towed_gc')||'0')
 };
 
@@ -125,9 +126,46 @@ function loadState(){
   try{
     var s=JSON.parse(localStorage.getItem('towed_v8')||'{}');
     if(s.user) state=Object.assign({},state,s,{screen:'home',result:null});
-    state.totalChecks=parseInt(localStorage.getItem('towed_tc')||'15000');
+    state.totalChecks=Math.max(BASE_CHECKS,parseInt(localStorage.getItem('towed_total')||'0'));
     state.guestChecks=parseInt(localStorage.getItem('towed_gc')||'0');
   }catch(e){}
+}
+
+// Global counter: 15,000 NYC meters + every check saved in Supabase.
+function setTotalChecks(n){
+  state.totalChecks=Math.max(n,state.totalChecks);
+  try{localStorage.setItem('towed_total',state.totalChecks);}catch(e){}
+  var el=document.getElementById('counter-num');
+  if(el) el.textContent=state.totalChecks.toLocaleString();
+}
+
+function loadTotalChecks(){
+  fetch(SB_URL+'/rest/v1/rpc/meter_check_count',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY},
+    body:'{}'
+  }).then(function(r){return r.ok?r.json():null;})
+    .then(function(n){if(typeof n==='number') setTotalChecks(BASE_CHECKS+n);})
+    .catch(function(){});
+}
+
+function logSearch(val,meter,parsed){
+  fetch(SB_URL+'/rest/v1/meter_searches',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
+    body:JSON.stringify({
+      meter_number:val,
+      found:!!meter,
+      street:meter?(meter.on_street||'Unknown'):null,
+      borough:meter?(meter.borough||'Unknown'):null,
+      result:meter?(parsed.safe?'safe':'danger'):'not_found',
+      meter_hours:meter?(meter.meter_hours||null):null,
+      user_email:state.user?state.user.email:null,
+      device:navigator.userAgent.slice(0,200)
+    })
+  }).then(function(r){
+    if(!r.ok) r.text().then(function(t){console.warn('meter_searches save failed:',r.status,t);});
+  }).catch(function(e){console.warn('meter_searches save failed:',e);});
 }
 
 function saveState(){
@@ -204,7 +242,7 @@ function homeHTML(){
     '<div style="font-size:10px;color:#3DDC97;font-family:IBM Plex Mono,monospace;background:rgba(61,220,151,.1);padding:4px 10px;border-radius:99px;border:1px solid rgba(61,220,151,.2)">FREE</div></div>'+
     '<div class="content">'+
     '<div style="height:14px"></div>'+
-    '<div class="counter-badge">🚗 '+state.totalChecks.toLocaleString()+' meters checked</div>'+
+    '<div class="counter-badge">🚗 <span id="counter-num">'+state.totalChecks.toLocaleString()+'</span> meters checked</div>'+
     '<div style="font-family:IBM Plex Mono,monospace;font-size:11px;letter-spacing:.1em;color:#FFC83D;margin-bottom:12px">NYC PARKING, DECODED</div>'+
     '<h1 style="font-weight:900;font-size:clamp(36px,9vw,60px);line-height:.95;letter-spacing:-.02em;margin-bottom:12px">Don\'t get towed<br>in New York.</h1>'+
     '<p style="font-size:15px;line-height:1.5;color:#B9BCC3;margin-bottom:20px">Instant parking answers for every NYC meter. Free forever.</p>'+
@@ -722,17 +760,14 @@ function checkMeter(){
         if(!state.history) state.history=[];
         state.history.unshift({meter:val,street:meter.on_street||'Unknown',safe:parsed.safe});
         if(state.history.length>5) state.history=state.history.slice(0,5);
-        state.totalChecks++;
-        localStorage.setItem('towed_tc',state.totalChecks);
+        setTotalChecks(state.totalChecks+1);
         saveState();
-        fetch(SB_URL+'/rest/v1/meter_searches',{
-          method:'POST',
-          headers:{'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'return=minimal'},
-          body:JSON.stringify({meter_number:val,street:meter.on_street||'Unknown',borough:meter.borough||'Unknown',result:parsed.safe?'safe':'danger'})
-        }).catch(function(){});
+        logSearch(val,meter,parsed);
         state.screen='result';render();
         if(!state.user&&state.guestChecks===1) setTimeout(openSignup,2000);
       } else {
+        logSearch(val,null,null);
+        setTotalChecks(state.totalChecks+1);
         state.screen='home';render();
         document.getElementById('meter-error').textContent='Meter not found. Check the 7-digit number on the post.';
         document.getElementById('meterInput').value=val;
@@ -782,6 +817,16 @@ if('serviceWorker' in navigator){
 
 loadState();
 render();
+loadTotalChecks();
+
+// Auto-open signup for visitors who haven't signed up (once per visit), like Canva.
+if(!state.user&&!sessionStorage.getItem('towed_signup_shown')){
+  setTimeout(function(){
+    if(state.user) return;
+    sessionStorage.setItem('towed_signup_shown','1');
+    openSignup();
+  },1500);
+}
 </script>
 </body>
 </html>
