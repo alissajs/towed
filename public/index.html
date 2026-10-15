@@ -130,7 +130,7 @@ function loadState(){
     state.deviceId=did;
     var s=JSON.parse(localStorage.getItem('towed_v7')||'{}');
     if(s.user) state=Object.assign({},state,s,{screen:'home',result:null});
-    state.totalChecks=parseInt(localStorage.getItem('towed_tc')||'1247');
+    state.totalChecks=parseInt(localStorage.getItem('towed_tc')||'15000');
   }catch(e){}
 }
 
