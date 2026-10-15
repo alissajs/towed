@@ -98,6 +98,12 @@ footer a{color:#FFC83D;text-decoration:none;}
 .signup-btn{width:100%;height:52px;background:#121418;color:#F4F3EE;border:none;border-radius:12px;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;cursor:pointer;margin-bottom:8px;}
 .signup-skip{background:none;border:none;color:#8B8F98;font-size:12px;font-weight:700;cursor:pointer;width:100%;padding:8px;text-align:center;font-family:'Archivo',sans-serif;}
 .signup-err{color:#FF6B3D;font-size:11px;text-align:center;margin-top:4px;min-height:16px;}
+.time-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.time-chip{height:46px;background:#fff;border:1.5px solid #D4D3CC;border-radius:11px;font-family:'Archivo',sans-serif;font-weight:800;font-size:15px;color:#121418;cursor:pointer;}
+.time-chip.sel{background:#121418;border-color:#121418;color:#FFC83D;}
+.time-custom{display:flex;gap:8px;align-items:center;margin-bottom:14px;}
+.time-custom .signup-input{margin-bottom:0;text-align:center;}
+.time-custom span{font-size:12px;color:#4A4D55;font-weight:700;}
 .cookie-bar{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:448px;background:#181B20;border:1px solid #3A3D44;border-radius:14px;padding:14px 16px;z-index:90;display:flex;gap:12px;align-items:flex-start;}
 .cookie-text{font-size:11px;color:#B9BCC3;line-height:1.5;flex:1;}
 .cookie-btn{background:#FFC83D;border:none;border-radius:8px;padding:8px 14px;color:#0E1013;font-weight:800;font-size:12px;cursor:pointer;flex-shrink:0;}
@@ -188,14 +194,6 @@ function parseHours(h){
   if(str.indexOf('MON-FRI')>=0&&(day===0||day===6)) return {safe:true,info:'No restrictions on weekends'};
   if(hour>=start&&hour<end) return {safe:false,info:'Restricted now until '+m[3]+':'+m[4]};
   return {safe:true,info:'Safe now. Restrictions '+m[1]+':'+m[2]+'-'+m[3]+':'+m[4]};
-}
-
-function getExpiry(mh){
-  var now=new Date();
-  if(!mh) return new Date(now.getTime()+7200000);
-  var m=mh.toUpperCase().match(/(\d{2})(\d{2})-(\d{2})(\d{2})/);
-  if(m){var e=new Date();e.setHours(parseInt(m[3]),parseInt(m[4]),0,0);if(e<=now) return new Date(now.getTime()+7200000);return e;}
-  return new Date(now.getTime()+7200000);
 }
 
 function nav(a){
@@ -330,10 +328,12 @@ function parkedHTML(){
     '</div></div>'+
     '<div class="t-row"><span class="t-lbl">Meter expires</span><span class="t-val">'+expiryStr+'</span></div>'+
     '<div class="t-row"><span class="t-lbl">Hours</span><span class="t-val">'+cleaning+'</span></div>'+
-    '<div class="t-row"><span class="t-lbl">Alerts</span><span class="t-val accent">30 & 10 min before ✓</span></div>'+
+    '<div class="t-row"><span class="t-lbl">Alerts</span><span class="t-val accent">'+alertText()+'</span></div>'+
     '<div style="height:14px"></div>'+
-    '<button class="btn" style="display:flex;align-items:center;justify-content:center;gap:8px">📍 Walk me back to my car</button>'+
-    '<button class="btn btn-ghost" onclick="goHome()">I moved my car</button>'+
+    (expiry
+      ?'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-ghost" onclick="addTime(15)">+15 min</button><button class="btn btn-ghost" onclick="openTimePicker()">Change time</button></div>'
+      :'<button class="btn" onclick="openTimePicker()">⏱ Set meter timer</button>')+
+    '<button class="btn btn-ghost" onclick="movedCar()">I moved my car</button>'+
     '</div>'+nav('parked')+'</div>';
 }
 
@@ -511,44 +511,94 @@ function doSignup(){
 }
 
 // ── GEOLOCATION ────────────────────────────────────────
-function initMap(){
-  if(!navigator.geolocation){
-    var el=document.getElementById('map-status');
-    if(el) el.textContent='Geolocation not supported.';
-    return;
-  }
-  navigator.geolocation.getCurrentPosition(
-    function(p){loadNearby(p.coords.latitude,p.coords.longitude);},
-    function(){
-      var el=document.getElementById('map-status');
-      if(el) el.textContent='Location access denied. Enable location in your browser settings.';
-      var li=document.getElementById('nearby-list');
-      if(li) li.innerHTML='<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Allow location access to see meters near you.</div>';
-    },
-    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
-  );
+// Try precise GPS first; if it times out (common indoors on phones), fall back to network location.
+function getPosition(onOk,onErr){
+  if(!navigator.geolocation||!window.isSecureContext){onErr('Location isn\'t available in this browser. Enter a meter number instead.');return;}
+  navigator.geolocation.getCurrentPosition(onOk,function(e){
+    if(e.code===1){onErr(locationBlockedMsg());return;}
+    navigator.geolocation.getCurrentPosition(onOk,function(e2){
+      onErr(e2.code===1?locationBlockedMsg():'Couldn\'t find your location. Make sure Location is turned on, then try again.');
+    },{enableHighAccuracy:false,timeout:20000,maximumAge:300000});
+  },{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
 }
 
-function loadNearby(lat,lng){
+function locationBlockedMsg(){
+  var ios=/iPhone|iPad|iPod/.test(navigator.userAgent);
+  return ios
+    ?'Location is blocked. On iPhone: Settings → Privacy & Security → Location Services → turn it on, then Safari Websites → "While Using the App". Then reload towed.nyc.'
+    :'Location is blocked. Tap the lock icon next to the address bar → Permissions → Location → Allow, then reload the page.';
+}
+
+// Nearest meters, widening the search until something is found.
+function nearbyMeters(lat,lng,limit,onOk,onErr){
+  var radii=[500,1500,3000];
+  function tryRadius(i){
+    if(i>=radii.length){onOk([]);return;}
+    var q='$select='+encodeURIComponent('meter_number,on_street,borough,meter_hours,distance_in_meters(location, \'POINT('+lng+' '+lat+')\') AS dist')+
+      '&$where='+encodeURIComponent('within_circle(location, '+lat+', '+lng+', '+radii[i]+')')+
+      '&$order=dist&$limit='+limit;
+    fetch(API+'?'+q).then(function(r){if(!r.ok) throw new Error(r.status);return r.json();})
+      .then(function(data){if(data&&data.length) onOk(data);else tryRadius(i+1);})
+      .catch(onErr);
+  }
+  tryRadius(0);
+}
+
+function fmtDist(m){
+  m=parseFloat(m);if(isNaN(m)) return '';
+  return m<1000?Math.round(m/10)*10+' m away':(m/1609).toFixed(1)+' mi away';
+}
+
+function meterRow(m){
+  var p=parseHours(m.meter_hours),safe=p.safe;
+  return '<div class="risk-item" onclick="quickCheck(\''+m.meter_number+'\')">'+
+    '<div style="width:36px;height:36px;border-radius:10px;background:'+(safe?'rgba(61,220,151,.12)':'rgba(255,107,61,.15)')+';display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">'+(safe?'✅':'🚨')+'</div>'+
+    '<div style="flex:1"><div style="font-size:13px;font-weight:700">'+(m.on_street||'Unknown Street')+'</div>'+
+    '<div style="font-size:10px;color:#8B8F98">Meter #'+m.meter_number+' · '+(m.borough||'')+(m.dist?' · '+fmtDist(m.dist):'')+'</div>'+
+    '<div style="font-size:10px;color:'+(safe?'#3DDC97':'#FF6B3D')+';margin-top:2px">'+p.info+'</div>'+
+    '</div><div style="font-size:18px;color:#3A3D44">›</div></div>';
+}
+
+var NO_METERS_MSG='No meters found within 2 miles. Towed covers NYC metered parking — if you\'re in NYC, enter the meter number from the post.';
+
+function initMap(){
   var st=document.getElementById('map-status');
   var li=document.getElementById('nearby-list');
-  if(st) st.textContent='📍 Showing meters near you';
-  var d=0.004;
-  fetch(API+'?$where=lat>'+(lat-d)+' AND lat<'+(lat+d)+' AND long>'+(lng-d)+' AND long<'+(lng+d)+'&$limit=10')
-    .then(function(r){return r.json();})
-    .then(function(data){
-      if(!data||data.length===0){if(li) li.innerHTML='<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">No meters found nearby. Try entering a meter number.</div>';return;}
-      if(li) li.innerHTML=data.map(function(m){
-        var p=parseHours(m.meter_hours),safe=p.safe;
-        return '<div class="risk-item" onclick="quickCheck(\''+m.meter_number+'\')">'+
-          '<div style="width:34px;height:34px;border-radius:9px;background:'+(safe?'rgba(61,220,151,.12)':'rgba(255,107,61,.15)')+';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">'+(safe?'✅':'🚨')+'</div>'+
-          '<div style="flex:1"><div style="font-size:12px;font-weight:700">'+(m.on_street||'Unknown')+'</div>'+
-          '<div style="font-size:10px;color:#8B8F98">Meter #'+m.meter_number+' · '+(m.borough||'')+'</div>'+
-          '<div style="font-size:10px;color:'+(safe?'#3DDC97':'#FF6B3D')+';margin-top:2px">'+p.info+'</div></div>'+
-          '<div style="font-size:18px;color:#3A3D44">›</div></div>';
-      }).join('');
-    })
-    .catch(function(){if(li) li.innerHTML='<div style="text-align:center;padding:20px;color:#8B8F98;font-size:13px">Could not load nearby meters.</div>';});
+  function fail(msg){
+    st=document.getElementById('map-status');li=document.getElementById('nearby-list');
+    if(st) st.textContent='📍 Location unavailable';
+    if(li) li.innerHTML=msgCard(msg,'<button class="btn" style="margin-top:12px" onclick="initMap()">Try again</button>');
+  }
+  if(st) st.textContent='📍 Getting your location...';
+  getPosition(function(p){
+    var lat=p.coords.latitude,lng=p.coords.longitude;
+    if(st) st.textContent='📍 Showing meters near you';
+    nearbyMeters(lat,lng,10,function(data){
+      li=document.getElementById('nearby-list');
+      if(!li) return;
+      li.innerHTML=data.length?data.map(meterRow).join(''):msgCard(NO_METERS_MSG,'');
+    },function(){fail('Could not load nearby meters. Check your connection and try again.');});
+  },fail);
+}
+
+function msgCard(msg,extra){
+  return '<div style="background:#181B20;border-radius:12px;padding:16px;color:#B9BCC3;font-size:13px;line-height:1.5;text-align:center">'+msg+extra+'</div>';
+}
+
+function loadingScreen(icon,text){
+  document.getElementById('root').innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif;flex-direction:column;gap:12px"><div style="font-size:32px">'+icon+'</div>'+text+'</div>';
+}
+
+function locationErrorScreen(title,msg,retry){
+  document.getElementById('root').innerHTML='<div class="screen">'+
+    '<div class="top-bar"><div class="logo" onclick="goHome()">TOWED</div></div>'+
+    '<div class="content">'+
+    '<div style="font-size:32px;margin:20px 0 10px">📍</div>'+
+    '<div style="font-weight:900;font-size:20px;margin-bottom:10px">'+title+'</div>'+
+    '<div style="font-size:14px;color:#B9BCC3;line-height:1.5;margin-bottom:20px">'+msg+'</div>'+
+    '<button class="btn" onclick="'+retry+'()">Try again</button>'+
+    '<button class="btn btn-ghost" onclick="goHome();setTimeout(showMeterInput,50)">Enter meter number instead</button>'+
+    '</div>'+nav('check')+'</div>';
 }
 
 function showMeterInput(){
@@ -560,23 +610,13 @@ function showMeterInput(){
 }
 
 function findNearMe(){
-  document.getElementById('root').innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif;flex-direction:column;gap:12px"><div style="font-size:32px">📍</div>Finding meters near you...</div>';
-  if(!navigator.geolocation){alert('Geolocation not supported.');state.screen='home';render();return;}
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      var lat=pos.coords.latitude,lng=pos.coords.longitude;
-      var d=0.004;
-      fetch(API+'?$where=lat>'+(lat-d)+' AND lat<'+(lat+d)+' AND long>'+(lng-d)+' AND long<'+(lng+d)+'&$limit=10')
-        .then(function(r){return r.json();})
-        .then(function(data){
-          if(!data||data.length===0){alert('No meters found nearby.');state.screen='home';render();return;}
-          showNearbyResults(data);
-        })
-        .catch(function(){alert('Connection error.');state.screen='home';render();});
-    },
-    function(){alert('Location access denied. Please enable location in your browser settings and try again.');state.screen='home';render();},
-    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
-  );
+  loadingScreen('📍','Finding meters near you...');
+  getPosition(function(pos){
+    nearbyMeters(pos.coords.latitude,pos.coords.longitude,10,function(data){
+      if(!data.length){locationErrorScreen('No meters nearby',NO_METERS_MSG,'findNearMe');return;}
+      showNearbyResults(data);
+    },function(){locationErrorScreen('Connection problem','Could not load nearby meters. Check your connection and try again.','findNearMe');});
+  },function(msg){locationErrorScreen('Can\'t get your location',msg,'findNearMe');});
 }
 
 function showNearbyResults(meters){
@@ -586,34 +626,17 @@ function showNearbyResults(meters){
     '<div class="content">'+
     '<div style="font-weight:900;font-size:20px;margin-bottom:4px">Meters Near You</div>'+
     '<div style="font-size:12px;color:#8B8F98;margin-bottom:16px">Tap any meter to check it</div>'+
-    meters.map(function(m){
-      var p=parseHours(m.meter_hours),safe=p.safe;
-      return '<div class="risk-item" onclick="quickCheck(\''+m.meter_number+'\')">'+
-        '<div style="width:36px;height:36px;border-radius:10px;background:'+(safe?'rgba(61,220,151,.12)':'rgba(255,107,61,.15)')+';display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">'+(safe?'✅':'🚨')+'</div>'+
-        '<div style="flex:1"><div style="font-size:13px;font-weight:700">'+(m.on_street||'Unknown Street')+'</div>'+
-        '<div style="font-size:10px;color:#8B8F98">Meter #'+m.meter_number+' · '+(m.borough||'')+'</div>'+
-        '<div style="font-size:10px;color:'+(safe?'#3DDC97':'#FF6B3D')+';margin-top:2px">'+p.info+'</div>'+
-        '</div><div style="font-size:18px;color:#3A3D44">›</div></div>';
-    }).join('')+
+    meters.map(meterRow).join('')+
     '<button class="btn btn-ghost" style="margin-top:8px" onclick="goHome()">← Back</button>'+
     '</div>'+nav('check')+'</div>';
 }
 
 function checkMyBlock(){
-  document.getElementById('root').innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#8B8F98;font-size:15px;font-family:Archivo,sans-serif;flex-direction:column;gap:12px"><div style="font-size:32px">🧹</div>Checking your block...</div>';
-  if(!navigator.geolocation){alert('Geolocation not supported.');state.screen='home';render();return;}
-  navigator.geolocation.getCurrentPosition(
-    function(pos){
-      var lat=pos.coords.latitude,lng=pos.coords.longitude;
-      var d=0.002;
-      fetch(API+'?$where=lat>'+(lat-d)+' AND lat<'+(lat+d)+' AND long>'+(lng-d)+' AND long<'+(lng+d)+'&$limit=5')
-        .then(function(r){return r.json();})
-        .then(function(data){showASPResults(data);})
-        .catch(function(){alert('Could not load block data.');state.screen='home';render();});
-    },
-    function(){alert('Location access denied.');state.screen='home';render();},
-    {enableHighAccuracy:true,timeout:10000,maximumAge:0}
-  );
+  loadingScreen('🧹','Checking your block...');
+  getPosition(function(pos){
+    nearbyMeters(pos.coords.latitude,pos.coords.longitude,5,showASPResults,
+      function(){locationErrorScreen('Connection problem','Could not load block data. Check your connection and try again.','checkMyBlock');});
+  },function(msg){locationErrorScreen('Can\'t get your location',msg,'checkMyBlock');});
 }
 
 function showASPResults(meters){
@@ -685,22 +708,115 @@ function reqNotif(expiry,street){
   Notification.requestPermission().then(function(p){if(p==='granted') schedNotif(expiry,street);});
 }
 
+var notifTimers=[];
+function clearNotifs(){notifTimers.forEach(clearTimeout);notifTimers=[];}
+
 function schedNotif(expiry,street){
-  var now=new Date(),exp=new Date(expiry);
-  var t30=exp.getTime()-1800000-now.getTime();
-  var t10=exp.getTime()-600000-now.getTime();
-  if(t30>0) setTimeout(function(){new Notification('🚗 TOWED',{body:'Meter expires in 30 min on '+street});},t30);
-  if(t10>0) setTimeout(function(){new Notification('⚠️ TOWED',{body:'Meter expires in 10 min on '+street+'!'});},t10);
+  clearNotifs();
+  var left=new Date(expiry).getTime()-Date.now();
+  [[1800000,'🚗 TOWED','Meter expires in 30 min on '+street],
+   [600000,'⚠️ TOWED','Meter expires in 10 min on '+street+'!'],
+   [0,'🚨 TOWED','Your meter on '+street+' just expired. Move your car!']].forEach(function(n){
+    var t=left-n[0];
+    if(t>0) notifTimers.push(setTimeout(function(){new Notification(n[1],{body:n[2]});},t));
+  });
 }
 
 function iParkHere(){
-  var r=state.result;if(!r) return;
-  var exp=getExpiry(r.meter_hours);
-  state.parkedAt=new Date().toISOString();
+  if(!state.result) return;
+  openTimePicker();
+}
+
+// Max time allowed at this meter, e.g. "2HR Pas Mon-Sat..." -> 120 minutes.
+function meterMaxMinutes(){
+  var m=state.result&&state.result.meter_hours&&state.result.meter_hours.toUpperCase().match(/(\d+(?:\.\d+)?)\s*HR/);
+  return m?Math.round(parseFloat(m[1])*60):null;
+}
+
+var pickedMin=null;
+function openTimePicker(){
+  var max=meterMaxMinutes();
+  var opts=[15,30,45,60,90,120,180,240,360].filter(function(x){return !max||x<=max;});
+  pickedMin=max&&opts.indexOf(max)>=0?max:(opts.indexOf(60)>=0?60:opts[opts.length-1]);
+  var ol=document.getElementById('signup-overlay');
+  window.scrollTo(0,0);
+  ol.style.display='flex';
+  document.body.style.overflow='hidden';
+  ol.innerHTML='<div class="signup-modal">'+
+    '<div class="signup-handle"></div>'+
+    '<div style="text-align:center;margin-bottom:18px">'+
+    '<div style="font-size:36px;margin-bottom:10px">⏱</div>'+
+    '<div style="font-weight:900;font-size:20px;margin-bottom:6px">How much time did you pay for?</div>'+
+    '<div style="font-size:13px;color:#4A4D55;line-height:1.4">'+(max?'This meter allows up to '+fmtMin(max)+'.':'We\'ll count down and alert you before it runs out.')+'</div>'+
+    '</div>'+
+    '<div class="time-chips">'+opts.map(function(x){
+      return '<button class="time-chip'+(x===pickedMin?' sel':'')+'" data-min="'+x+'" onclick="pickTime('+x+')">'+fmtMin(x)+'</button>';
+    }).join('')+'</div>'+
+    '<div style="font-size:11px;color:#4A4D55;font-weight:700;margin-bottom:6px">OR ENTER YOUR OWN</div>'+
+    '<div class="time-custom">'+
+    '<input class="signup-input" id="t-h" type="number" inputmode="numeric" min="0" max="12" placeholder="0" oninput="customTime()"/><span>hr</span>'+
+    '<input class="signup-input" id="t-m" type="number" inputmode="numeric" min="0" max="59" placeholder="0" oninput="customTime()"/><span>min</span>'+
+    '</div>'+
+    '<button class="signup-btn" onclick="confirmTime()">Start timer →</button>'+
+    '<div id="t-err" class="signup-err"></div>'+
+    '<button class="signup-skip" onclick="closeSignup()">Cancel</button>'+
+    '</div>';
+}
+
+function fmtMin(x){
+  var h=Math.floor(x/60),m=x%60;
+  return h&&m?h+'h '+m+'m':h?h+(h===1?' hr':' hrs'):m+' min';
+}
+
+function pickTime(x){
+  pickedMin=x;
+  document.getElementById('t-h').value='';document.getElementById('t-m').value='';
+  Array.prototype.forEach.call(document.querySelectorAll('.time-chip'),function(b){b.classList.toggle('sel',+b.getAttribute('data-min')===x);});
+}
+
+function customTime(){
+  var h=parseInt(document.getElementById('t-h').value)||0,m=parseInt(document.getElementById('t-m').value)||0;
+  pickedMin=h*60+m||null;
+  Array.prototype.forEach.call(document.querySelectorAll('.time-chip'),function(b){b.classList.remove('sel');});
+}
+
+function confirmTime(){
+  var err=document.getElementById('t-err');
+  if(!pickedMin||pickedMin<1){err.textContent='Pick a time or enter hours and minutes.';return;}
+  if(pickedMin>24*60){err.textContent='That\'s more than 24 hours.';return;}
+  closeSignup();
+  startParking(pickedMin);
+}
+
+function startParking(min){
+  var now=new Date(),exp=new Date(now.getTime()+min*60000);
+  state.parkedAt=now.toISOString();
   state.parkedExpiry=exp.toISOString();
   saveState();
-  reqNotif(exp,r.on_street||'your spot');
+  reqNotif(exp,(state.result&&state.result.on_street)||'your spot');
   state.screen='parked';render();
+}
+
+function addTime(min){
+  if(!state.parkedExpiry) return;
+  var exp=new Date(Math.max(Date.now(),new Date(state.parkedExpiry).getTime())+min*60000);
+  state.parkedExpiry=exp.toISOString();
+  saveState();
+  reqNotif(exp,(state.result&&state.result.on_street)||'your spot');
+  render();
+}
+
+function movedCar(){
+  state.parkedAt=null;state.parkedExpiry=null;
+  clearNotifs();
+  saveState();
+  goHome();
+}
+
+function alertText(){
+  if(!state.parkedExpiry) return 'Set a timer to get alerts';
+  var total=new Date(state.parkedExpiry)-new Date(state.parkedAt);
+  return total>1800000?'30 & 10 min before ✓':total>600000?'10 min before ✓':'When time is up ✓';
 }
 
 function saveSpot(){
